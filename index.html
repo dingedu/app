@@ -288,20 +288,19 @@ table.t{width:100%;border-collapse:collapse;font-size:14px}
 <div id="app"></div>
 <script>
 /* =========================================================
-   DING! KIDS CLUB PORTAL — frontend
-   Mode otomatis:
-   • Dibuka dari URL Apps Script  → pakai google.script.run
-   • Di-host sendiri (Netlify dll) → isi CONFIG.API_URL dengan URL /exec
-   • API_URL kosong & bukan Apps Script → MODE DEMO (data contoh di browser)
+   DING! KIDS CLUB PORTAL — frontend (backend: Supabase)
+   • SUPABASE_URL & SUPABASE_KEY terisi → data asli di Supabase
+     (semua akses lewat fungsi RPC ding_api — tabel tidak bisa dibaca langsung)
+   • Dikosongkan → MODE DEMO (data contoh di browser)
    ========================================================= */
 const CONFIG = {
-  API_URL: 'https://script.google.com/macros/s/AKfycbxerzZ9gBhBwhoN5dLNjseRvqW3I3kYzDSeI7Kn8k6R4Pzmjy-hbx9zUvYmmiAdvlm-/exec' // contoh: 'https://script.google.com/macros/s/XXXX/exec'
+  SUPABASE_URL: 'https://rvkcdedrvejievurbwit.supabase.co',
+  SUPABASE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2a2NkZWRydmVqaWV2dXJid2l0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIxNDM4MTMsImV4cCI6MjEwNzcxOTgxM30.rMxA0w3YUlM-NK4aICROt252BpO5o9yVPTysIcBYnYc' // anon public key
 };
 const LOGO = 'data:image/jpeg;base64,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AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAf/Z';
-const IS_GAS = typeof google !== 'undefined' && google.script && google.script.run;
-const DEMO = !IS_GAS && !CONFIG.API_URL;
+const DEMO = !CONFIG.SUPABASE_URL;
 
-const S = { token: null, role: null, profile: null, db: {}, settings: {}, me: null, g: null, page: null, tab: {}, f: {}, ver: 0 };
+const S = { token: null, role: null, profile: null, db: {}, dbAll: {}, settings: {}, me: null, g: null, page: null, tab: {}, f: {}, ver: 0, cabang: '' };
 
 /* ---------------- storage aman ---------------- */
 const store = {
@@ -316,13 +315,19 @@ async function call(action, payload = {}, opts = {}) {
   if (!opts.silent) loading(true);
   try {
     let res;
-    if (IS_GAS) {
-      res = await new Promise((ok, ko) => google.script.run.withSuccessHandler(r => ok(JSON.parse(r))).withFailureHandler(ko).api(JSON.stringify(req)));
-    } else if (DEMO) {
+    if (DEMO) {
       await new Promise(r => setTimeout(r, 90));
       res = DemoServer.handle(JSON.parse(JSON.stringify(req)));
     } else {
-      const r = await fetch(CONFIG.API_URL, { method: 'POST', body: JSON.stringify(req) });
+      let r;
+      try {
+        r = await fetch(CONFIG.SUPABASE_URL.replace(/\/$/, '') + '/rest/v1/rpc/ding_api', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', apikey: CONFIG.SUPABASE_KEY, Authorization: 'Bearer ' + CONFIG.SUPABASE_KEY },
+          body: JSON.stringify({ req })
+        });
+      } catch (e) { throw new Error('Tidak bisa terhubung ke server. Cek koneksi internet.'); }
+      if (!r.ok) { let m = ''; try { m = (await r.json()).message; } catch (e) {} throw new Error(m || ('Server error ' + r.status)); }
       res = await r.json();
     }
     if (!res.ok) {
@@ -346,8 +351,8 @@ const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 const todayStr = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
 const nowHM = () => { const d = new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
 const thisPeriod = () => todayStr().slice(0, 7);
-const fmtDate = s => { if (!s) return '-'; const [y, m, d] = String(s).split('-'); return d ? `${+d} ${BULAN[+m - 1].slice(0, 3)} ${y}` : s; };
-const fmtDateLong = s => { if (!s) return '-'; const [y, m, d] = String(s).split('-'); return `${+d} ${BULAN[+m - 1]} ${y}`; };
+const fmtDate = s => { if (!s) return '-'; const [y, m, d] = String(s).split('-'); return d && BULAN[+m - 1] ? `${+d} ${BULAN[+m - 1].slice(0, 3)} ${y}` : s; };
+const fmtDateLong = s => { if (!s) return '-'; const [y, m, d] = String(s).split('-'); return d && BULAN[+m - 1] ? `${+d} ${BULAN[+m - 1]} ${y}` : s; };
 const fmtPeriod = p => { if (!p) return '-'; const [y, m] = p.split('-'); return `${BULAN[+m - 1]} ${y}`; };
 const addMonths = (p, n) => { let [y, m] = p.split('-').map(Number); m += n; while (m > 12) { m -= 12; y++; } while (m < 1) { m += 12; y--; } return `${y}-${pad(m)}`; };
 const dayName = s => HARI[new Date(s + 'T00:00:00').getDay()];
@@ -450,7 +455,7 @@ const ICONS = {
 };
 const ic = (n, cls = '') => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[n] || ''}</svg>`;
 
-/* ===== CORE (sama dengan Code.gs) ===== */
+/* ===== CORE: engine perhitungan + backend mode demo ===== */
 /* ================================================================
  *  DING! KIDS CLUB — CORE (dipakai bersama oleh Code.gs & mode demo)
  *  Berisi: schema sheet, data awal (tarif dari spreadsheet klien),
@@ -464,29 +469,31 @@ const SESSION_SECONDS = 21600; // 6 jam
 const SCHEMA = {
   Pengaturan:  ['key', 'value'],
   Users:       ['id', 'username', 'passwordHash', 'nama', 'role'],
-  Guru:        ['id', 'nama', 'wa', 'status', 'pin', 'catatan'],
-  Siswa:       ['id', 'nama', 'panggilan', 'tglLahir', 'sekolah', 'ortu', 'waOrtu', 'alamat', 'tglDaftar', 'status', 'kodeOrtu', 'referralDari', 'referralGuruId', 'catatan'],
-  KelasGroup:  ['id', 'nama', 'program', 'hari', 'jam', 'durasi', 'lokasi', 'guruId', 'kapasitas', 'status', 'catatan'],
+  Guru:        ['id', 'nama', 'wa', 'status', 'pin', 'catatan', 'cabang'],
+  Siswa:       ['id', 'nama', 'panggilan', 'tglLahir', 'sekolah', 'ortu', 'waOrtu', 'alamat', 'tglDaftar', 'status', 'kodeOrtu', 'referralDari', 'referralGuruId', 'catatan', 'cabang'],
+  KelasGroup:  ['id', 'nama', 'program', 'hari', 'jam', 'durasi', 'lokasi', 'guruId', 'kapasitas', 'status', 'catatan', 'cabang'],
   Enrol:       ['id', 'siswaId', 'tipe', 'kelasId', 'tarifId', 'guruId', 'kategori', 'lokasi', 'durasi', 'travelFee', 'jadwal', 'tglMulai', 'status', 'catatan'],
-  Paket:       ['id', 'nama', 'jenis', 'untuk', 'kategori', 'sesi', 'bonus', 'jatahIzin', 'harga', 'aktif'],
-  Pembelian:   ['id', 'noInvoice', 'siswaId', 'enrolId', 'paketId', 'jenis', 'nama', 'sesi', 'bonus', 'jatahIzin', 'harga', 'biayaLain', 'ketBiayaLain', 'diskon', 'total', 'tglBeli', 'status', 'tglBayar', 'metode', 'asalId', 'catatan'],
-  Sesi:        ['id', 'tanggal', 'jam', 'tipe', 'kelasId', 'guruId', 'durasi', 'lokasi', 'materi', 'catatan', 'inputOleh'],
-  Hadir:       ['id', 'sesiId', 'siswaId', 'enrolId', 'status', 'catatan'],
-  TarifPrivat: ['id', 'guruId', 'kategori', 'lokasi', 'versi', 'tglBerlaku', 'nilaiKelas', 'persenGuru', 'adminFee', 'feeGuruManual', 'classroomFee', 'persenReferral', 'travelFee', 'aktif'],
+  Paket:       ['id', 'nama', 'jenis', 'untuk', 'kategori', 'sesi', 'bonus', 'jatahIzin', 'harga', 'aktif', 'cabang'],
+  Pembelian:   ['id', 'noInvoice', 'siswaId', 'enrolId', 'paketId', 'jenis', 'nama', 'sesi', 'bonus', 'jatahIzin', 'harga', 'biayaLain', 'ketBiayaLain', 'diskon', 'total', 'tglBeli', 'status', 'tglBayar', 'metode', 'asalId', 'catatan', 'terpakaiAwal', 'tarifId', 'referralGuruId', 'referralNama', 'tglExpired', 'kodeLama'],
+  Sesi:        ['id', 'tanggal', 'jam', 'tipe', 'kelasId', 'guruId', 'durasi', 'lokasi', 'materi', 'catatan', 'inputOleh', 'asisten'],
+  Hadir:       ['id', 'sesiId', 'siswaId', 'enrolId', 'status', 'catatan', 'mode'],
+  TarifPrivat: ['id', 'guruId', 'kategori', 'lokasi', 'versi', 'tglBerlaku', 'nilaiKelas', 'persenGuru', 'adminFee', 'feeGuruManual', 'classroomFee', 'persenReferral', 'travelFee', 'aktif', 'paketId', 'hargaPaket', 'kodeLama'],
   TarifGroup:  ['id', 'guruId', 'versi', 'tglBerlaku', 'jumlahMurid', 'feeGuru'],
-  Gaji:        ['id', 'guruId', 'periode', 'bonus', 'potongan', 'catatan', 'tglBayar', 'total']
+  Gaji:        ['id', 'guruId', 'periode', 'bonus', 'potongan', 'catatan', 'tglBayar', 'total'],
+  RiwayatLama: ['id', 'siswaId', 'tanggal', 'jenis', 'kelas', 'keterangan', 'nilai', 'sumber']
 };
 
 // tabel yang boleh diubah per peran
-const TABLES_OWNER = ['Guru', 'Siswa', 'KelasGroup', 'Enrol', 'Paket', 'Pembelian', 'Sesi', 'Hadir', 'TarifPrivat', 'TarifGroup', 'Gaji'];
-const TABLES_ADMIN = ['Guru', 'Siswa', 'KelasGroup', 'Enrol', 'Paket', 'Pembelian', 'Sesi', 'Hadir'];
+const TABLES_OWNER = ['Guru', 'Siswa', 'KelasGroup', 'Enrol', 'Paket', 'Pembelian', 'Sesi', 'Hadir', 'TarifPrivat', 'TarifGroup', 'Gaji', 'RiwayatLama'];
+const TABLES_ADMIN = ['Guru', 'Siswa', 'KelasGroup', 'Enrol', 'Paket', 'Pembelian', 'Sesi', 'Hadir', 'RiwayatLama'];
 // kolom tarif yang boleh dilihat admin (admin TIDAK melihat fee guru)
-const TARIF_ADMIN_COLS = ['id', 'guruId', 'kategori', 'lokasi', 'versi', 'tglBerlaku', 'nilaiKelas', 'travelFee', 'aktif'];
+const TARIF_ADMIN_COLS = ['id', 'guruId', 'kategori', 'lokasi', 'versi', 'tglBerlaku', 'nilaiKelas', 'travelFee', 'aktif', 'paketId', 'hargaPaket', 'kodeLama'];
 
 const DEFAULT_LOKASI = JSON.stringify([
   { kode: 'HS', nama: 'Home Service', rumah: 'Ya' },
   { kode: 'HSW', nama: 'Home Service (West)', rumah: 'Ya' },
   { kode: 'DS', nama: 'Ding Studio', rumah: '' },
+  { kode: 'DSE', nama: 'Ding Studio (East)', rumah: '' },
   { kode: 'OS', nama: 'Owner Studio', rumah: '' },
   { kode: 'OC', nama: 'Online Class', rumah: '' }
 ]);
@@ -508,9 +515,10 @@ const DEFAULT_SETTINGS = {
   warnSisa: '1',                // peringatan bila sisa sesi ≤ angka ini
   lokasi: DEFAULT_LOKASI,
   kategori: DEFAULT_KATEGORI,
+  cabang: JSON.stringify(['Pusat', 'Malang']),
   portalUrl: ''
 };
-const PUBLIC_KEYS = ['namaLembaga', 'tagline', 'alamat', 'noWa', 'rekening', 'durasiStandar', 'warnSisa', 'lokasi', 'kategori', 'portalUrl', 'alpaPotong', 'izinLewatJatah'];
+const PUBLIC_KEYS = ['namaLembaga', 'tagline', 'alamat', 'noWa', 'rekening', 'durasiStandar', 'warnSisa', 'lokasi', 'kategori', 'portalUrl', 'alpaPotong', 'izinLewatJatah', 'cabang'];
 
 /* ---------------- DATA AWAL dari spreadsheet "Student Attendance ERP" ---------------- */
 const SEED_GURU = ['Fenny', 'Inez', 'Jessi', 'Nikita', 'Ribka', 'Selo', 'Lisa', 'Fefe', 'Fio', 'Nia', 'Zia', 'Elis', 'Tessa'];
@@ -711,28 +719,20 @@ function bootstrap_(s) {
 function guruData_(s) {
   const g = readTable_('Guru').find(r => r.id === s.uid);
   if (!g) throw new Error('Data guru tidak ditemukan');
-  const db = {};
-  ['Siswa', 'KelasGroup', 'Enrol', 'Pembelian', 'Sesi', 'Hadir'].forEach(t => db[t] = readTable_(t));
-  const st = getSettings_();
-  const L = engine_(db, st);
-  const enrolAktif = db.Enrol.filter(e => e.status !== 'Selesai' && e.status !== 'Berhenti');
-  const sid = {}; enrolAktif.forEach(e => sid[e.siswaId] = 1);
-  const sisa = {};
-  enrolAktif.forEach(e => { const x = L.enrol[e.id]; sisa[e.id] = x ? { sisa: x.sisa, kurang: x.kurang, warn: x.warn } : { sisa: 0, kurang: 0, warn: 'habis' }; });
-  const cutoff = addDays_(ENV.today(), -120);
-  const mySesi = db.Sesi.filter(x => x.guruId === s.uid && x.tanggal >= cutoff);
-  const ids = {}; mySesi.forEach(x => ids[x.id] = 1);
-  const safe = { id: g.id, nama: g.nama, wa: g.wa };
+  const enrol = readTable_('Enrol').filter(e => e.status !== 'Selesai' && e.status !== 'Berhenti');
+  const sid = {}; enrol.forEach(e => sid[e.siswaId] = 1);
+  // guru tidak menerima nominal uang — hanya jumlah sesi untuk menghitung sisa paket
+  const PB = ['id', 'siswaId', 'enrolId', 'jenis', 'nama', 'sesi', 'bonus', 'jatahIzin', 'status', 'asalId', 'tglBeli', 'terpakaiAwal', 'tglExpired'];
   return {
-    guru: safe,
+    guru: { id: g.id, nama: g.nama, wa: g.wa, cabang: g.cabang },
     settings: publicSettings_(),
-    Guru: readTable_('Guru').filter(x => x.status !== 'Nonaktif').map(x => ({ id: x.id, nama: x.nama })),
-    Siswa: db.Siswa.filter(x => sid[x.id]).map(x => ({ id: x.id, nama: x.nama, panggilan: x.panggilan, sekolah: x.sekolah })),
-    KelasGroup: db.KelasGroup.filter(k => k.status !== 'Nonaktif'),
-    Enrol: enrolAktif.map(e => ({ id: e.id, siswaId: e.siswaId, tipe: e.tipe, kelasId: e.kelasId, guruId: e.guruId, kategori: e.kategori, lokasi: e.lokasi, durasi: e.durasi, jadwal: e.jadwal })),
-    Sesi: mySesi,
-    Hadir: db.Hadir.filter(h => ids[h.sesiId]),
-    sisa: sisa
+    Guru: readTable_('Guru').filter(x => x.status !== 'Nonaktif').map(x => ({ id: x.id, nama: x.nama, cabang: x.cabang })),
+    Siswa: readTable_('Siswa').filter(x => sid[x.id]).map(x => ({ id: x.id, nama: x.nama, panggilan: x.panggilan, sekolah: x.sekolah, cabang: x.cabang })),
+    KelasGroup: readTable_('KelasGroup').filter(k => k.status !== 'Nonaktif'),
+    Enrol: enrol.map(e => ({ id: e.id, siswaId: e.siswaId, tipe: e.tipe, kelasId: e.kelasId, guruId: e.guruId, kategori: e.kategori, lokasi: e.lokasi, durasi: e.durasi, jadwal: e.jadwal, status: e.status })),
+    Pembelian: readTable_('Pembelian').filter(p => sid[p.siswaId] && p.status !== 'Batal').map(p => { const o = { total: '0' }; PB.forEach(k => o[k] = p[k]); return o; }),
+    Sesi: readTable_('Sesi'),
+    Hadir: readTable_('Hadir')
   };
 }
 
@@ -750,7 +750,8 @@ function me_(s) {
     Enrol: readTable_('Enrol').filter(e => e.siswaId === s.uid).map(e => { const o = Object.assign({}, e); delete o.tarifId; return o; }),
     Pembelian: readTable_('Pembelian').filter(p => p.siswaId === s.uid && p.status !== 'Batal'),
     Sesi: readTable_('Sesi').filter(x => sids[x.id]).map(x => ({ id: x.id, tanggal: x.tanggal, jam: x.jam, tipe: x.tipe, kelasId: x.kelasId, guruId: x.guruId, durasi: x.durasi, lokasi: x.lokasi, materi: x.materi, catatan: x.catatan })),
-    Hadir: hadir
+    Hadir: hadir,
+    RiwayatLama: readTable_('RiwayatLama').filter(r => r.siswaId === s.uid)
   };
 }
 
@@ -772,13 +773,14 @@ function saveSesi_(s, req) {
   const sesi = {
     tanggal: src.tanggal, jam: String(src.jam || ''), tipe: src.tipe === 'Group' ? 'Group' : 'Private',
     kelasId: String(src.kelasId || ''), guruId: src.guruId, durasi: String(src.durasi || ''), lokasi: String(src.lokasi || ''),
-    materi: String(src.materi || ''), catatan: String(src.catatan || ''), inputOleh: s.role + ':' + s.uid
+    materi: String(src.materi || ''), catatan: String(src.catatan || ''), inputOleh: s.role + ':' + s.uid, asisten: String(src.asisten || '')
   };
   if (old) sesi.id = old.id;
   const rows = (req.hadir || []).filter(h => STATUS_HADIR.indexOf(h.status) > -1).map(h => {
     const e = enrolAll.find(x => x.id === h.enrolId);
     if (!e) throw new Error('Pendaftaran kelas murid tidak ditemukan.');
-    return { siswaId: e.siswaId, enrolId: e.id, status: h.status, catatan: String(h.catatan || '') };
+    const mode = s.role === 'guru' ? '' : (['bebas', 'potong'].indexOf(h.mode) > -1 ? h.mode : '');
+    return { siswaId: e.siswaId, enrolId: e.id, status: h.status, catatan: String(h.catatan || ''), mode: mode };
   });
   if (!rows.length) throw new Error('Isi absensi minimal satu murid.');
   const saved = upsertMany_('Sesi', [sesi])[0];
@@ -867,8 +869,9 @@ function engine_(db, st) {
     if (p.status === 'Batal') return;
     const credits = num_(p.sesi) + num_(p.bonus);
     if (credits <= 0) return;
+    const awal = Math.max(0, num_(p.terpakaiAwal));
     const k = { id: p.id, p: p, enrolId: p.enrolId, siswaId: p.siswaId, credits: credits, izinQuota: num_(p.jatahIzin),
-      perCredit: num_(p.total) / credits, usedN: 0, izinUsed: 0, hangusN: 0, movedOut: 0, moves: [], events: [], tgl: p.tglBeli || '' };
+      perCredit: num_(p.total) / credits, usedN: awal, awal: awal, izinUsed: 0, hangusN: 0, movedOut: 0, moves: [], events: [], tgl: p.tglBeli || '' };
     pkgs[p.id] = k; (byEnrol[p.enrolId] = byEnrol[p.enrolId] || []).push(k);
   });
   T('Pembelian').forEach(p => {
@@ -889,7 +892,13 @@ function engine_(db, st) {
     const avail = list.find(k => k.usedN + k.movedOut < k.credits);
     const ev = { id: h.id, sesiId: s.id, tgl: s.tanggal, jam: s.jam, siswaId: h.siswaId, enrolId: eid, status: h.status, guruId: s.guruId,
       kelasId: s.kelasId, tipe: s.tipe, durasi: num_(s.durasi), mode: '', charge: false, pkgId: '', value: 0, kurang: false };
-    if (h.status === 'Hadir') { ev.mode = 'pakai'; ev.charge = true; }
+    ev.override = h.mode || '';
+    if (h.mode === 'bebas' && h.status !== 'Hadir') {
+      const cur = avail || list[list.length - 1];
+      ev.mode = 'izin'; if (cur) { cur.izinUsed++; ev.pkgId = cur.id; cur.events.push(ev); }
+    }
+    else if (h.mode === 'potong' && h.status !== 'Hadir') { ev.mode = 'hangus'; ev.charge = true; }
+    else if (h.status === 'Hadir') { ev.mode = 'pakai'; ev.charge = true; }
     else if (h.status === 'Alpa') { ev.mode = alpaPotong ? 'hangus' : 'bebas'; ev.charge = alpaPotong; }
     else {
       const cur = avail || list[list.length - 1];
@@ -898,7 +907,7 @@ function engine_(db, st) {
       else ev.mode = 'bebas';
     }
     if (ev.charge) {
-      if (avail) { avail.usedN++; if (ev.mode === 'hangus') avail.hangusN++; ev.pkgId = avail.id; ev.value = avail.perCredit; avail.events.push(ev); }
+      if (avail) { avail.usedN++; if (ev.mode === 'hangus') avail.hangusN++; ev.pkgId = avail.id; ev.value = avail.perCredit; ev.pkg = avail; avail.events.push(ev); }
       else ev.kurang = true;
     }
     events.push(ev);
@@ -920,7 +929,9 @@ function engine_(db, st) {
   });
 
   /* ---- tarif ---- */
-  const tarifFor = (e, guruId, tgl) => {
+  const tarifFor = (e, guruId, tgl, pkg) => {
+    const pt = pkg && pkg.p.tarifId ? tarifM[pkg.p.tarifId] : null;
+    if (pt && (!guruId || pt.guruId === guruId)) return pt;
     let t = tarifM[e.tarifId];
     if (t && (!guruId || t.guruId === guruId)) return t;
     const cand = T('TarifPrivat').filter(r => r.guruId === guruId && r.kategori === (t ? t.kategori : e.kategori) && r.lokasi === (t ? t.lokasi : e.lokasi) && r.aktif !== 'Tidak' && (r.tglBerlaku || '') <= tgl)
@@ -936,7 +947,8 @@ function engine_(db, st) {
     let pick = null; cur.forEach(r => { if (num_(r.jumlahMurid) <= n) pick = r; });
     return num_((pick || cur[0]).feeGuru);
   };
-  const refInfo = (siswaId, tgl) => {
+  const refInfo = (siswaId, tgl, pkg) => {
+    if (pkg && (pkg.p.referralGuruId || pkg.p.referralNama)) return { nama: pkg.p.referralNama || '', guruId: pkg.p.referralGuruId || '' };
     const x = siswaM[siswaId];
     if (!x || !(x.referralDari || x.referralGuruId) || !x.tglDaftar) return null;
     const end = addMonthsIso_(x.tglDaftar, refBulan);
@@ -958,12 +970,12 @@ function engine_(db, st) {
       g.nilai += ev.value;
       if (ev.value) {
         f.admin = Math.round(ev.value * admGroupPct / 100);
-        const r = refInfo(ev.siswaId, ev.tgl);
+        const r = refInfo(ev.siswaId, ev.tgl, ev.pkg);
         if (r) { f.referral = Math.round((ev.value - f.admin) * refGroupPct / 100); f.refNama = r.nama; f.refGuruId = r.guruId; }
       }
     } else {
       const teach = ev.status === 'Hadir' || (ev.status === 'Alpa' && ev.charge && guruAlpa);
-      const t = tarifFor(e, ev.guruId, ev.tgl);
+      const t = tarifFor(e, ev.guruId, ev.tgl, ev.pkg);
       if (!t) f.tarifMissing = teach;
       if (t && (teach || ev.charge)) {
         const dur = ev.durasi || num_(e.durasi) || std;
@@ -977,7 +989,7 @@ function engine_(db, st) {
           f.travel = num_(e.travelFee !== '' && e.travelFee != null ? e.travelFee : t.travelFee);
         }
         if (ev.charge) {
-          const r = refInfo(ev.siswaId, ev.tgl);
+          const r = refInfo(ev.siswaId, ev.tgl, ev.pkg);
           if (r) { f.referral = Math.round((cv - adm) * num_(t.persenReferral) / 100); f.refNama = r.nama; f.refGuruId = r.guruId; }
         }
       }
@@ -1031,7 +1043,7 @@ function rekapBulan_(db, st, L, periode) {
   // saldo paket (belum terpakai) per akhir bulan
   Object.keys(L.pkgs).forEach(id => {
     const k = L.pkgs[id]; if ((k.tgl || '') > end) return;
-    const used = k.events.filter(v => v.charge && v.tgl <= end).length;
+    const used = k.awal + k.events.filter(v => v.charge && v.tgl <= end).length;
     const moved = k.moves.filter(m => (m.tglBeli || '') <= end).reduce((a, m) => a + num_(m.sesi) + num_(m.bonus), 0);
     const sisa = Math.max(0, k.credits - used - moved);
     out.saldoPaket += sisa * k.perCredit;
@@ -1066,12 +1078,46 @@ function autoFields_(name, r, existing) {
    DATA & DOMAIN HELPERS (dipakai semua portal)
    ========================================================= */
 const DB = () => S.role === 'guru' ? (S.g || {}) : S.role === 'ortu' ? (S.me || {}) : S.db;
+const isStaff = () => S.role === 'owner' || S.role === 'admin';
+/* ---------- cabang (Pusat / Malang / …) ---------- */
+const CABANGS = () => jsonSetting('cabang', ['Pusat']);
+const cabangOf = x => (x && x.cabang) || CABANGS()[0];
+function applyCabang() {
+  const A = S.dbAll, c = S.cabang;
+  if (!c) { S.db = A; bump(); return; }
+  const T = t => A[t] || [];
+  const siswa = T('Siswa').filter(x => cabangOf(x) === c);
+  const sid = {}; siswa.forEach(x => sid[x.id] = 1);
+  const guru = T('Guru').filter(x => cabangOf(x) === c);
+  const gid = {}; guru.forEach(x => gid[x.id] = 1);
+  const hadir = T('Hadir').filter(h => sid[h.siswaId]);
+  const ses = {}; hadir.forEach(h => ses[h.sesiId] = 1);
+  S.db = Object.assign({}, A, {
+    Siswa: siswa, Guru: guru,
+    KelasGroup: T('KelasGroup').filter(x => cabangOf(x) === c),
+    Enrol: T('Enrol').filter(e => sid[e.siswaId]),
+    Pembelian: T('Pembelian').filter(p => sid[p.siswaId]),
+    Hadir: hadir,
+    Sesi: T('Sesi').filter(x => ses[x.id] || gid[x.guruId]),
+    RiwayatLama: T('RiwayatLama').filter(r => sid[r.siswaId]),
+    Paket: T('Paket').filter(p => !p.cabang || p.cabang === c),
+    TarifPrivat: T('TarifPrivat').filter(t => gid[t.guruId]),
+    TarifGroup: T('TarifGroup').filter(t => gid[t.guruId]),
+    Gaji: T('Gaji').filter(g => gid[g.guruId])
+  });
+  bump();
+}
+// tulis perubahan ke data lengkap lalu terapkan filter cabang lagi
+function dbPut(t, rows) { const A = isStaff() ? S.dbAll : DB(); const arr = A[t] || (A[t] = []); rows.forEach(r => { const i = arr.findIndex(x => x.id === r.id); i > -1 ? arr[i] = r : arr.push(r); }); if (isStaff()) applyCabang(); else bump(); }
+function dbDel(t, fn) { const A = isStaff() ? S.dbAll : DB(); A[t] = (A[t] || []).filter(x => !fn(x)); if (isStaff()) applyCabang(); else bump(); }
 const D = t => { const d = DB(); return d[t] || (d[t] = []); };
 const byId = (t, id) => D(t).find(x => x.id === id);
 const siswaById = id => byId('Siswa', id) || (S.role === 'ortu' && S.me.siswa.id === id ? S.me.siswa : { id, nama: '(terhapus)' });
 const guruById = id => byId('Guru', id) || { id, nama: '-' };
 const guruNama = id => id ? guruById(id).nama : '-';
 const kelasById = id => byId('KelasGroup', id) || { id, nama: '(kelas dihapus)' };
+const kelasIdsOf = e => String((e && e.kelasId) || '').split(',').map(x => x.trim()).filter(Boolean);
+const kelasNamaOf = e => kelasIdsOf(e).map(id => kelasById(id).nama).join(' + ') || 'Group Class';
 const enrolById = id => byId('Enrol', id);
 const tarifById = id => byId('TarifPrivat', id);
 function jsonSetting(k, def) { try { const v = JSON.parse(S.settings[k] || ''); return Array.isArray(v) ? v : def; } catch (e) { return def; } }
@@ -1083,7 +1129,7 @@ const STD = () => N(S.settings.durasiStandar) || 45;
 
 function enrolLabel(e, withGuru = true) {
   if (!e) return '(kelas dihapus)';
-  if (e.tipe === 'Group') return kelasById(e.kelasId).nama;
+  if (e.tipe === 'Group') return kelasNamaOf(e);
   return [e.kategori || 'Private', withGuru ? guruNama(e.guruId) : '', lokNama(e.lokasi)].filter(Boolean).join(' · ');
 }
 function sesiLabel(s, hadirRows) {
@@ -1101,7 +1147,6 @@ function L() {
 }
 const bump = () => { S.ver++; };
 function enrolInfo(id) {
-  if (S.role === 'guru') return (S.g.sisa || {})[id] || { sisa: 0, kurang: 0, warn: 'habis' };
   return L().enrol[id] || { sisa: 0, credits: 0, used: 0, moved: 0, izin: 0, kurang: 0, warn: 'habis', pkgs: [] };
 }
 function sisaBadge(info) {
@@ -1116,7 +1161,7 @@ const payBadge = p => p.asalId ? '<span class="badge b-teal">Pindahan</span>' : 
 const HADIR_BADGE = { Hadir: 'b-green', Izin: 'b-blue', Sakit: 'b-yellow', Alpa: 'b-coral' };
 const hadirBadge = s => `<span class="badge ${HADIR_BADGE[s] || 'b-gray'}">${esc(s)}</span>`;
 const MODE_TXT = { pakai: 'Terpotong 1 sesi', izin: 'Pakai jatah izin (tidak terpotong)', hangus: 'Hangus (terpotong)', bebas: 'Tidak terpotong' };
-function modeTxt(ev) { if (ev.kurang) return '<span style="color:var(--red);font-weight:800">Belum ada paket (minus)</span>'; return MODE_TXT[ev.mode] || '-'; }
+function modeTxt(ev) { if (ev.override === 'bebas' && ev.status !== 'Hadir') return 'Izin diizinkan (tidak terpotong)'; if (ev.kurang) return '<span style="color:var(--red);font-weight:800">Belum ada paket (minus)</span>'; return MODE_TXT[ev.mode] || '-'; }
 function pkgName(id) { const p = byId('Pembelian', id); return p ? (p.nama || p.jenis) : '-'; }
 
 function packageBar(info) {
@@ -1182,7 +1227,7 @@ async function doLogin(e) {
 }
 function logout(expired) {
   if (S.token && !expired) call('logout', {}, { silent: true }).catch(() => {});
-  S.token = null; S.role = null; S.db = {}; S.me = null; S.g = null; S.page = null; S.ver++;
+  S.token = null; S.role = null; S.db = {}; S.dbAll = {}; S.me = null; S.g = null; S.page = null; S.ver++;
   store.del('ding_session'); closeModal();
   renderLogin();
   if (expired) toast('Sesi berakhir, silakan login kembali', true);
@@ -1190,7 +1235,9 @@ function logout(expired) {
 async function startApp() {
   if (S.role === 'owner' || S.role === 'admin') {
     if (!S.page) S.page = window.innerWidth <= 900 ? 'menu' : 'dashboard';
-    const r = await call('bootstrap'); S.db = r.data.db; S.settings = r.data.settings; S.role = r.data.role; bump(); renderStaff();
+    const r = await call('bootstrap'); S.dbAll = r.data.db; S.settings = r.data.settings; S.role = r.data.role;
+    S.cabang = store.get('ding_cabang') || ''; if (S.cabang && !CABANGS().includes(S.cabang)) S.cabang = '';
+    applyCabang(); renderStaff();
   } else if (S.role === 'guru') { const r = await call('guruData'); S.g = r.data; S.settings = r.data.settings; bump(); renderGuru(); }
   else { const r = await call('me'); S.me = r.data; S.settings = r.data.settings; bump(); renderOrtu(); }
   if (DEMO && !$('.mode-flag')) { const f = document.createElement('div'); f.className = 'mode-flag'; f.textContent = 'MODE DEMO'; document.body.appendChild(f); }
@@ -1207,38 +1254,40 @@ async function init() {
 /* =========================================================
    FORM ABSENSI / SESI (dipakai Owner, Admin & Guru)
    ========================================================= */
-// state: S.sf = { id, tanggal, jam, durasi, tipe, kelasId, guruId, materi, catatan, st:{enrolId:status}, nt:{enrolId:catatan}, q, semua }
+// state: S.sf = { id, tanggal, jam, durasi, tipe, kelasId, guruId, materi, catatan, asisten, st:{enrolId:status}, md:{enrolId:mode}, nt:{}, extra:[], q, semua }
 function sfNew(over = {}) {
-  S.sf = Object.assign({ id: '', tanggal: todayStr(), jam: nowHM().slice(0, 2) + ':00', durasi: '', tipe: 'Group', kelasId: '', guruId: S.role === 'guru' ? S.g.guru.id : '', lokasi: '', materi: '', catatan: '', st: {}, nt: {}, q: '', semua: false }, over);
+  S.sf = Object.assign({ id: '', tanggal: todayStr(), jam: nowHM().slice(0, 2) + ':00', durasi: '', tipe: 'Group', kelasId: '', guruId: S.role === 'guru' ? S.g.guru.id : '', lokasi: '', materi: '', catatan: '', asisten: '', st: {}, md: {}, nt: {}, extra: [], q: '', semua: false }, over);
 }
 function sfLoad(sesiId) {
   const s = byId('Sesi', sesiId); if (!s) return;
-  const st = {}, nt = {};
-  D('Hadir').filter(h => h.sesiId === s.id).forEach(h => { st[h.enrolId] = h.status; nt[h.enrolId] = h.catatan || ''; });
-  sfNew({ id: s.id, tanggal: s.tanggal, jam: s.jam, durasi: s.durasi, tipe: s.tipe, kelasId: s.kelasId, guruId: s.guruId, lokasi: s.lokasi, materi: s.materi, catatan: s.catatan, st, nt, semua: true });
+  const st = {}, nt = {}, md = {}, extra = [];
+  D('Hadir').filter(h => h.sesiId === s.id).forEach(h => { st[h.enrolId] = h.status; nt[h.enrolId] = h.catatan || ''; md[h.enrolId] = h.mode || ''; extra.push(h.enrolId); });
+  sfNew({ id: s.id, tanggal: s.tanggal, jam: s.jam, durasi: s.durasi, tipe: s.tipe, kelasId: s.kelasId, guruId: s.guruId, lokasi: s.lokasi, materi: s.materi, catatan: s.catatan, asisten: s.asisten || '', st, nt, md, extra, semua: true });
 }
+const enrolAktifRow = e => e.status !== 'Selesai' && e.status !== 'Berhenti';
 function sfRows() {
-  const f = S.sf; const isGuru = S.role === 'guru';
-  const aktif = e => e.status !== 'Selesai' && e.status !== 'Berhenti';
+  const f = S.sf;
   let list;
   if (f.tipe === 'Group') {
-    list = D('Enrol').filter(e => e.tipe === 'Group' && e.kelasId === f.kelasId && (aktif(e) || f.st[e.id]));
+    list = D('Enrol').filter(e => e.tipe === 'Group' && ((kelasIdsOf(e).includes(f.kelasId) && enrolAktifRow(e)) || f.st[e.id] || f.extra.includes(e.id)));
   } else {
     const gid = f.guruId;
-    list = D('Enrol').filter(e => e.tipe !== 'Group' && (aktif(e) || f.st[e.id]) && (f.semua || !gid || e.guruId === gid || f.st[e.id]));
+    list = D('Enrol').filter(e => e.tipe !== 'Group' && (enrolAktifRow(e) || f.st[e.id]) && (f.semua || !gid || e.guruId === gid || f.st[e.id]));
     const q = (f.q || '').toLowerCase();
-    if (q) list = list.filter(e => (siswaById(e.siswaId).nama + ' ' + enrolLabel(e)).toLowerCase().includes(q) || f.st[e.id]);
+    if (q) list = list.filter(e => (siswaById(e.siswaId).nama + ' ' + siswaById(e.siswaId).panggilan + ' ' + enrolLabel(e)).toLowerCase().includes(q) || f.st[e.id]);
   }
   return list.sort((a, b) => (f.st[b.id] ? 1 : 0) - (f.st[a.id] ? 1 : 0) || siswaById(a.siswaId).nama.localeCompare(siswaById(b.siswaId).nama));
 }
 function sfHtml() {
   const f = S.sf; const isGuru = S.role === 'guru';
-  const kelas = D('KelasGroup').filter(k => k.status !== 'Nonaktif').sort((a, b) => a.nama.localeCompare(b.nama));
+  const kelas = D('KelasGroup').filter(k => k.status !== 'Nonaktif' || k.id === f.kelasId).sort((a, b) => a.nama.localeCompare(b.nama));
   const myKelas = isGuru ? kelas.filter(k => k.guruId === f.guruId) : kelas;
   const otherKelas = isGuru ? kelas.filter(k => k.guruId !== f.guruId) : [];
   const rows = sfRows();
   const nSel = Object.keys(f.st).filter(k => f.st[k]).length;
   const k = f.tipe === 'Group' && f.kelasId ? kelasById(f.kelasId) : null;
+  const ids = rows.map(e => e.id);
+  const others = f.tipe === 'Group' && f.kelasId ? D('Enrol').filter(e => e.tipe === 'Group' && enrolAktifRow(e) && !ids.includes(e.id)).sort((a, b) => siswaById(a.siswaId).nama.localeCompare(siswaById(b.siswaId).nama)) : [];
   return `<div class="card">
     <div class="card-head"><h3>${f.id ? 'Edit Sesi' : 'Input Absensi Sesi'}</h3><div class="spacer"></div>${f.id ? `<button class="btn ghost sm" onclick="sfNew();sfRender()">${ic('plus')}Sesi baru</button>` : ''}</div>
     <div class="form-grid three">
@@ -1246,15 +1295,17 @@ function sfHtml() {
       <div class="field"><label>Jam mulai</label><input class="input" type="time" value="${esc(f.jam)}" onchange="S.sf.jam=this.value"></div>
       <div class="field"><label>Durasi (menit)</label><input class="input" type="number" min="15" step="5" placeholder="${k ? N(k.durasi) || STD() : STD()}" value="${esc(f.durasi)}" oninput="S.sf.durasi=this.value"><span class="hint">Standar ${STD()} menit. Isi bila custom (mis. 60).</span></div>
       ${isGuru ? '' : `<div class="field"><label>Guru yang mengajar</label><select class="input" onchange="S.sf.guruId=this.value;sfRender()"><option value="">— pilih guru —</option>${D('Guru').filter(g => g.status !== 'Nonaktif').map(g => opt(g.id, g.nama, f.guruId)).join('')}</select></div>`}
-      <div class="field"><label>Jenis kelas</label><div class="radio-pills">${['Group', 'Private'].map(t => `<label><input type="radio" name="sfTipe" ${f.tipe === t ? 'checked' : ''} onchange="S.sf.tipe='${t}';S.sf.st={};sfRender()"><span>${t === 'Group' ? 'Group Class' : 'Private / Semi / Art / Tutoring'}</span></label>`).join('')}</div></div>
+      <div class="field"><label>Jenis kelas</label><div class="radio-pills">${['Group', 'Private'].map(t => `<label><input type="radio" name="sfTipe" ${f.tipe === t ? 'checked' : ''} onchange="S.sf.tipe='${t}';S.sf.st={};S.sf.extra=[];sfRender()"><span>${t === 'Group' ? 'Group Class' : 'Private / Semi / Art / Tutoring'}</span></label>`).join('')}</div></div>
       ${f.tipe === 'Group' ? `<div class="field"><label>Kelas group</label><select class="input" onchange="sfPickKelas(this.value)"><option value="">— pilih kelas —</option>${isGuru && otherKelas.length ? `<optgroup label="Kelas saya">${myKelas.map(x => opt(x.id, x.nama, f.kelasId)).join('')}</optgroup><optgroup label="Gantikan guru lain">${otherKelas.map(x => opt(x.id, x.nama + ' (' + guruNama(x.guruId) + ')', f.kelasId)).join('')}</optgroup>` : myKelas.map(x => opt(x.id, x.nama + (isGuru ? '' : ' · ' + guruNama(x.guruId)), f.kelasId)).join('')}</select></div>` : `<div class="field"><label>Cari murid</label><input class="input" placeholder="Nama murid…" value="${esc(f.q)}" oninput="S.sf.q=this.value;$('#sfList').innerHTML=sfListHtml()"></div>`}
+      ${f.tipe === 'Group' ? `<div class="field"><label>Asisten (opsional)</label><input class="input" placeholder="mis. Selo, Xiuxia" value="${esc(f.asisten)}" oninput="S.sf.asisten=this.value"></div>` : ''}
     </div>
     <div style="margin-top:14px">
-      <div class="row" style="margin-bottom:4px"><b>Daftar murid</b><span class="muted small">${f.tipe === 'Group' ? (f.kelasId ? `${rows.length} murid terdaftar` : 'Pilih kelas dulu') : (f.semua ? 'Semua murid private' : (isGuru ? 'Murid private saya' : (f.guruId ? 'Murid private guru ini' : 'Semua murid private')))}</span><div class="spacer"></div>
+      <div class="row" style="margin-bottom:4px"><b>Daftar murid</b><span class="muted small">${f.tipe === 'Group' ? (f.kelasId ? `${rows.length} murid` : 'Pilih kelas dulu') : (f.semua ? 'Semua murid private' : (isGuru ? 'Murid private saya' : (f.guruId ? 'Murid private guru ini' : 'Semua murid private')))}</span><div class="spacer"></div>
         ${f.tipe === 'Group' && rows.length ? `<button class="btn ghost sm" onclick="sfAll()">Semua hadir</button>` : ''}
         ${f.tipe !== 'Group' ? `<label class="small b row" style="gap:6px"><input type="checkbox" ${f.semua ? 'checked' : ''} onchange="S.sf.semua=this.checked;sfRender()">Tampilkan semua (guru pengganti)</label>` : ''}
       </div>
       <div id="sfList">${sfListHtml()}</div>
+      ${others.length ? `<div class="row" style="margin-top:8px"><select class="input" style="max-width:420px" onchange="if(this.value){S.sf.extra.push(this.value);S.sf.st[this.value]='Hadir';sfRender()}"><option value="">+ Tambah murid dari kelas lain (ganti jadwal / trial)</option>${others.map(e => opt(e.id, siswaById(e.siswaId).nama + ' — ' + enrolLabel(e), '')).join('')}</select></div>` : ''}
     </div>
     <div class="form-grid" style="margin-top:10px">
       <div class="field"><label>Materi / kegiatan hari ini</label><textarea class="input" placeholder="Tampil di portal orang tua" oninput="S.sf.materi=this.value">${esc(f.materi)}</textarea></div>
@@ -1266,13 +1317,15 @@ function sfHtml() {
   </div>`;
 }
 function sfListHtml() {
-  const f = S.sf; const rows = sfRows();
+  const f = S.sf; const rows = sfRows(); const staff = isStaff();
   if (f.tipe === 'Group' && !f.kelasId) return '<div class="empty">Pilih kelas group terlebih dahulu.</div>';
   if (!rows.length) return `<div class="empty">${f.tipe === 'Group' ? 'Belum ada murid di kelas ini. Daftarkan murid lewat menu Kelas.' : 'Tidak ada murid private. Centang "Tampilkan semua" bila menggantikan guru lain.'}</div>`;
   return rows.map(e => {
     const s = siswaById(e.siswaId); const cur = f.st[e.id] || ''; const info = enrolInfo(e.id);
+    const md = f.md[e.id] || '';
     return `<div class="att-row" id="ar_${e.id}"><div class="avatar" style="background:${cur ? 'var(--mint)' : 'var(--yellow-50)'}">${initials(s.panggilan || s.nama)}</div>
-      <div class="meta"><b>${esc(s.nama)}</b><span class="small muted">${esc(e.tipe === 'Group' ? (e.jadwal || 'Group') : enrolLabel(e))}${N(e.durasi) && N(e.durasi) !== STD() ? ' · ' + N(e.durasi) + ' mnt' : ''}</span> ${sisaBadge(info)}</div>
+      <div class="meta"><b>${esc(s.nama)}</b><span class="small muted">${esc(e.tipe === 'Group' ? (kelasIdsOf(e).includes(f.kelasId) ? (e.jadwal || 'Group') : 'dari ' + kelasNamaOf(e)) : enrolLabel(e))}${N(e.durasi) && N(e.durasi) !== STD() ? ' · ' + N(e.durasi) + ' mnt' : ''}</span> ${sisaBadge(info)}</div>
+      ${staff && cur && cur !== 'Hadir' ? `<select class="input" style="width:auto;padding:6px 8px;font-size:12.5px" title="Potong sesi?" onchange="S.sf.md['${e.id}']=this.value">${[['', 'Otomatis'], ['bebas', 'Tidak dipotong'], ['potong', 'Dipotong']].map(([v, l]) => opt(v, l, md)).join('')}</select>` : ''}
       <div class="seg">${['H', 'I', 'S', 'A'].map(c => { const v = { H: 'Hadir', I: 'Izin', S: 'Sakit', A: 'Alpa' }[c]; return `<button class="${cur === v ? 'on ' + c : ''}" onclick="sfSet('${e.id}','${v}')">${c}</button>`; }).join('')}</div>
       ${cur ? `<button class="icon-btn" title="Batal" onclick="sfSet('${e.id}','')">${ic('x')}</button>` : '<span style="width:34px"></span>'}
     </div>`;
@@ -1285,7 +1338,7 @@ function sfSet(eid, v) {
 }
 function sfAll() { sfRows().forEach(e => { if (!S.sf.st[e.id]) S.sf.st[e.id] = 'Hadir'; }); $('#sfList').innerHTML = sfListHtml(); const c = $('#sfCount'); if (c) c.textContent = Object.keys(S.sf.st).length; }
 function sfPickKelas(id) {
-  S.sf.kelasId = id; S.sf.st = {};
+  S.sf.kelasId = id; S.sf.st = {}; S.sf.extra = [];
   const k = byId('KelasGroup', id);
   if (k) { if (S.role !== 'guru' && !S.sf.guruId) S.sf.guruId = k.guruId; if (k.jam && !S.sf.id) S.sf.jam = k.jam; S.sf.lokasi = k.lokasi; }
   sfRender();
@@ -1293,23 +1346,20 @@ function sfPickKelas(id) {
 function sfRender() { const el = $('#sfWrap'); if (el) el.innerHTML = sfHtml(); }
 async function sfSave() {
   const f = S.sf;
-  const hadir = Object.keys(f.st).map(eid => ({ enrolId: eid, status: f.st[eid], catatan: f.nt[eid] || '' }));
+  const hadir = Object.keys(f.st).map(eid => ({ enrolId: eid, status: f.st[eid], catatan: f.nt[eid] || '', mode: f.st[eid] === 'Hadir' ? '' : (f.md[eid] || '') }));
   if (!hadir.length) return toast('Pilih status kehadiran minimal satu murid', true);
   if (S.role !== 'guru' && !f.guruId) return toast('Pilih guru yang mengajar', true);
   if (f.tipe === 'Group' && !f.kelasId) return toast('Pilih kelas group', true);
   let lokasi = f.lokasi;
   if (f.tipe !== 'Group') { const e = enrolById(hadir[0].enrolId); lokasi = e ? e.lokasi : ''; }
-  const sesi = { id: f.id, tanggal: f.tanggal, jam: f.jam, durasi: f.durasi, tipe: f.tipe, kelasId: f.tipe === 'Group' ? f.kelasId : '', guruId: f.guruId, lokasi, materi: f.materi, catatan: f.catatan };
+  const sesi = { id: f.id, tanggal: f.tanggal, jam: f.jam, durasi: f.durasi, tipe: f.tipe, kelasId: f.tipe === 'Group' ? f.kelasId : '', guruId: f.guruId, lokasi, materi: f.materi, catatan: f.catatan, asisten: f.asisten };
   try {
     const r = await call('saveSesi', { sesi, hadir });
-    const dbx = DB();
-    dbx.Sesi = (dbx.Sesi || []).filter(x => x.id !== r.data.sesi.id).concat([r.data.sesi]);
-    dbx.Hadir = (dbx.Hadir || []).filter(x => x.sesiId !== r.data.sesi.id).concat(r.data.hadir);
-    bump();
-    if (S.role === 'guru') { const g = await call('guruData', {}, { silent: true }); S.g = g.data; bump(); }
+    const sid = r.data.sesi.id;
+    dbDel('Hadir', x => x.sesiId === sid);
+    dbPut('Sesi', [r.data.sesi]); dbPut('Hadir', r.data.hadir);
     toast('Absensi tersimpan ✅');
-    const keepKelas = f.kelasId, keepTipe = f.tipe, keepGuru = f.guruId;
-    sfNew({ tipe: keepTipe, kelasId: '', guruId: S.role === 'guru' ? S.g.guru.id : keepGuru });
+    sfNew({ tipe: f.tipe, kelasId: '', guruId: S.role === 'guru' ? S.g.guru.id : f.guruId });
     afterSesiSaved();
   } catch (e) { toast(e.message, true); }
 }
@@ -1318,8 +1368,7 @@ function sfDelete() {
   confirmBox('Hapus sesi ini beserta absensinya? Sisa sesi murid akan dihitung ulang.', async () => {
     try {
       await call('delSesi', { id });
-      const dbx = DB(); dbx.Sesi = dbx.Sesi.filter(x => x.id !== id); dbx.Hadir = dbx.Hadir.filter(x => x.sesiId !== id); bump();
-      if (S.role === 'guru') { const g = await call('guruData', {}, { silent: true }); S.g = g.data; bump(); }
+      dbDel('Sesi', x => x.id === id); dbDel('Hadir', x => x.sesiId === id);
       toast('Sesi dihapus'); sfNew(); afterSesiSaved();
     } catch (e) { toast(e.message, true); }
   });
@@ -1345,10 +1394,10 @@ const NAV = [
 const isOwner = () => S.role === 'owner';
 const navFor = () => NAV.filter(n => !n[4] || n[4] === S.role);
 
-function replaceRows(t, rows) { rows.forEach(r => { const i = D(t).findIndex(x => x.id === r.id); i > -1 ? D(t)[i] = r : D(t).push(r); }); bump(); }
+function replaceRows(t, rows) { dbPut(t, rows); }
 async function saveRow(t, row) { const r = await call('save', { table: t, row }); replaceRows(t, [r.row]); return r.row; }
 async function saveRows(t, rows) { const r = await call('saveMany', { table: t, rows }); replaceRows(t, r.rows); return r.rows; }
-async function removeRow(t, id) { await call('remove', { table: t, id }); S.db[t] = D(t).filter(x => x.id !== id); bump(); }
+async function removeRow(t, id) { await call('remove', { table: t, id }); dbDel(t, x => x.id === id); }
 
 const siswaAktif = () => D('Siswa').filter(s => s.status === 'Aktif').sort((a, b) => a.nama.localeCompare(b.nama));
 const enrolAktif = () => D('Enrol').filter(e => e.status !== 'Selesai' && e.status !== 'Berhenti' && siswaById(e.siswaId).status !== 'Berhenti');
@@ -1374,12 +1423,16 @@ function renderStaff() {
       <div class="topbar">
         <button class="icon-btn menu-btn" onclick="toggleSide(true)">${ic('menu')}</button>${S.page !== 'menu' ? `<button class="icon-btn home-btn" title="Beranda" onclick="go('menu')">${ic('home')}</button>` : ''}
         <h2 id="pageTitle"></h2><div class="spacer"></div>
+        ${CABANGS().length > 1 ? `<select class="input" style="width:auto;padding:7px 10px;font-weight:800" title="Filter cabang" onchange="setCabang(this.value)"><option value="">Semua cabang</option>${CABANGS().map(c => opt(c, c, S.cabang)).join('')}</select>` : ''}
         <div class="user-pill"><span class="nm">${esc(S.profile.nama)}<span class="role">${isOwner() ? 'Owner' : 'Admin'}</span></span><div class="avatar">${initials(S.profile.nama)}</div></div>
       </div>
       <div class="content" id="page"></div>
     </div></div>`;
   renderPage();
 }
+function setCabang(c) { S.cabang = c; store.set('ding_cabang', c); applyCabang(); renderStaff(); }
+const cabBadge = x => CABANGS().length > 1 && !S.cabang ? ` <span class="badge b-gray">${esc(cabangOf(x))}</span>` : '';
+function cabangSelect(val) { return `<select class="input" name="cabang">${CABANGS().map(c => opt(c, c, val || S.cabang || CABANGS()[0])).join('')}</select>`; }
 function toggleSide(on) { $('#side').classList.toggle('open', on); $('#scrim').classList.toggle('hidden', !on); }
 function go(p) { S.page = p; renderStaff(); window.scrollTo(0, 0); }
 function renderPage() {
@@ -1460,7 +1513,7 @@ function siswaRows() {
   if (!list.length) return '<tr><td colspan="5"><div class="empty">Belum ada murid.</div></td></tr>';
   return list.map(s => {
     const en = D('Enrol').filter(e => e.siswaId === s.id && e.status !== 'Selesai' && e.status !== 'Berhenti');
-    return `<tr><td><b class="nowrap" style="cursor:pointer" onclick="siswaDetail('${s.id}')">${esc(s.nama)}</b><div class="xs muted">${esc(s.id)}${s.sekolah ? ' · ' + esc(s.sekolah) : ''}</div></td>
+    return `<tr><td><b class="nowrap" style="cursor:pointer" onclick="siswaDetail('${s.id}')">${esc(s.nama)}</b><div class="xs muted">${esc(s.id)}${s.sekolah ? ' · ' + esc(s.sekolah) : ''}${cabBadge(s)}</div></td>
       <td>${en.length ? en.map(e => `<div class="row" style="gap:6px;margin:2px 0"><span class="small">${esc(enrolLabel(e))}</span>${sisaBadge(enrolInfo(e.id))}</div>`).join('') : '<span class="muted small">Belum ikut kelas</span>'}</td>
       <td class="small">${esc(s.ortu || '-')}<div class="xs muted">${esc(s.waOrtu || '')}</div></td><td>${stBadge(s.status)}</td>
       <td class="act"><button class="icon-btn" title="Detail & riwayat" onclick="siswaDetail('${s.id}')">${ic('eye')}</button><button class="icon-btn" title="Edit" onclick="formSiswa('${s.id}')">${ic('edit')}</button><button class="icon-btn" title="Kirim akses portal ortu" onclick="waAkses('${s.id}')">${ic('key')}</button></td></tr>`;
@@ -1481,6 +1534,7 @@ function formSiswa(id) {
     <div class="field"><label>Direferensikan oleh (nama)</label><input class="input" name="referralDari" placeholder="kosongkan bila tidak ada" value="${esc(s.referralDari || '')}"></div>
     <div class="field"><label>…atau guru yang mereferensikan</label><select class="input" name="referralGuruId"><option value="">— bukan guru —</option>${D('Guru').map(g => opt(g.id, g.nama, s.referralGuruId)).join('')}</select><span class="hint">Insentif referral berlaku ${esc(S.settings.referralBulan || 3)} bulan sejak tanggal daftar.</span></div>
     <div class="field"><label>Status</label><select class="input" name="status">${['Aktif', 'Cuti', 'Berhenti'].map(x => opt(x, x, s.status)).join('')}</select></div>
+    <div class="field"><label>Cabang</label>${cabangSelect(s.cabang)}</div>
     <div class="field"><label>Kode akses orang tua</label><input class="input" name="kodeOrtu" placeholder="otomatis" value="${esc(s.kodeOrtu || '')}"></div>
     <div class="field full"><label>Catatan</label><textarea class="input" name="catatan">${esc(s.catatan || '')}</textarea></div>
   </form>`, `<button class="btn ghost" onclick="closeModal()">Batal</button>${id ? `<button class="btn ghost" onclick="delSiswa('${id}')">${ic('trash')}Hapus</button>` : ''}<button class="btn" onclick="saveSiswa('${id || ''}')">Simpan</button>`);
@@ -1502,7 +1556,7 @@ function waAkses(id) {
 /* ---------- detail murid (sisa sesi + riwayat pemakaian) ---------- */
 function siswaDetail(id) {
   const s = siswaById(id);
-  modal(`${esc(s.nama)} <span class="muted small">${esc(s.id)}</span>`, siswaDetailHtml(id), `<button class="btn ghost" onclick="formSiswa('${id}')">${ic('edit')}Edit data</button><button class="btn ghost" onclick="waAkses('${id}')">${ic('key')}Akses ortu</button><button class="btn yellow" onclick="formBeli({siswaId:'${id}'})">${ic('wallet')}Catat pembayaran</button><button class="btn" onclick="formEnrol('${id}')">${ic('plus')}Daftarkan kelas</button>`, true);
+  modal(`${esc(s.nama)} <span class="muted small">${esc(s.id)}</span>`, siswaDetailHtml(id), `<button class="btn ghost" onclick="formGabung('${id}')" title="Gabungkan data murid duplikat">${ic('users')}Gabungkan</button><button class="btn ghost" onclick="formSiswa('${id}')">${ic('edit')}Edit data</button><button class="btn ghost" onclick="waAkses('${id}')">${ic('key')}Akses ortu</button><button class="btn yellow" onclick="formBeli({siswaId:'${id}'})">${ic('wallet')}Catat pembayaran</button><button class="btn" onclick="formEnrol('${id}')">${ic('plus')}Daftarkan kelas</button>`, true);
 }
 function siswaDetailHtml(id) {
   const s = siswaById(id); const LL = L();
@@ -1513,12 +1567,36 @@ function siswaDetailHtml(id) {
   const hist = evs.map(v => ({ tgl: v.tgl, html: `<tr class="${v.kurang ? 'warn' : ''}"><td class="nowrap">${fmtDate(v.tgl)}<div class="xs muted">${dayName(v.tgl)} ${esc(v.jam || '')}</div></td><td>${esc(enrolLabel(enrolById(v.enrolId), false))}</td><td>${esc(guruNama(v.guruId))}</td><td>${hadirBadge(v.status)}</td><td class="small">${modeTxt(v)}</td><td class="small muted">${v.pkgId ? esc(pkgName(v.pkgId)) : '-'}</td></tr>` }))
     .concat(moves.map(m => ({ tgl: m.tglBeli, html: `<tr><td class="nowrap">${fmtDate(m.tglBeli)}</td><td colspan="3"><span class="badge b-teal">${ic('swap')}Pindah ${N(m.sesi)} sesi</span> ke <b>${esc(enrolLabel(enrolById(m.enrolId)))}</b>${m.siswaId !== id ? ' (' + esc(siswaById(m.siswaId).nama) + ')' : ''}</td><td class="small">Dipindah dari paket</td><td class="small muted">${esc(pkgName(m.asalId))}</td></tr>` })))
     .sort((a, b) => b.tgl.localeCompare(a.tgl));
-  return `<div class="row small"><span>${stBadge(s.status)}</span><span class="muted">Ortu:</span> <b>${esc(s.ortu || '-')}</b> ${esc(s.waOrtu || '')}<span class="muted">· Daftar ${fmtDate(s.tglDaftar)}</span>${s.referralDari || s.referralGuruId ? `<span class="badge b-teal">${ic('link')}Referral: ${esc(s.referralDari || guruNama(s.referralGuruId))}</span>` : ''}</div>
+  const lama = D('RiwayatLama').filter(r => r.siswaId === id).sort((a, b) => (b.tanggal || '').localeCompare(a.tanggal || ''));
+  return `<div class="row small"><span>${stBadge(s.status)}</span>${cabBadge(s)}<span class="muted">Ortu:</span> <b>${esc(s.ortu || '-')}</b> ${esc(s.waOrtu || '')}<span class="muted">· Daftar ${fmtDate(s.tglDaftar)}</span>${s.referralDari || s.referralGuruId ? `<span class="badge b-teal">${ic('link')}Referral: ${esc(s.referralDari || guruNama(s.referralGuruId))}</span>` : ''}</div>
   ${ens.length ? `<div class="grid g2">${ens.map(e => enrolCard(e)).join('')}</div>` : '<div class="note bg-yellow">' + ic('info') + '<span>Murid belum terdaftar di kelas mana pun. Klik <b>Daftarkan kelas</b>.</span></div>'}
   <div><div class="row" style="margin-bottom:6px"><h3 style="font-size:17px">Riwayat pemakaian sesi</h3><span class="muted small">tanggal, kelas yang dihadiri & paket yang terpotong</span></div>
   ${hist.length ? `<div class="table-wrap" style="margin:0"><table class="t"><thead><tr><th>Tanggal</th><th>Kelas</th><th>Guru</th><th>Absen</th><th>Keterangan</th><th>Paket</th></tr></thead><tbody>${hist.map(h => h.html).join('')}</tbody></table></div>` : '<div class="empty">Belum ada sesi.</div>'}</div>
   <div><h3 style="font-size:17px;margin-bottom:6px">Pembayaran</h3>
-  ${pays.length ? `<div class="table-wrap" style="margin:0"><table class="t"><thead><tr><th>Invoice</th><th>Item</th><th class="r">Total</th><th>Status</th><th></th></tr></thead><tbody>${pays.map(p => `<tr><td class="nowrap small">${esc(p.noInvoice)}<div class="xs muted">${fmtDate(p.tglBeli)}</div></td><td>${esc(p.nama || p.jenis)}<div class="xs muted">${esc(p.enrolId ? enrolLabel(enrolById(p.enrolId)) : '')}</div></td><td class="r nowrap">${rp(p.total)}</td><td>${payBadge(p)}</td><td class="act"><button class="icon-btn" title="Invoice" onclick="showInvoice('${p.id}')">${ic('file')}</button>${p.asalId ? '' : `<button class="icon-btn" title="Edit" onclick="formBeli({id:'${p.id}'})">${ic('edit')}</button>`}</td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Belum ada pembayaran.</div>'}</div>`;
+  ${pays.length ? `<div class="table-wrap" style="margin:0"><table class="t"><thead><tr><th>Invoice</th><th>Item</th><th class="r">Total</th><th>Status</th><th></th></tr></thead><tbody>${pays.map(p => `<tr><td class="nowrap small">${esc(p.noInvoice)}<div class="xs muted">${fmtDate(p.tglBeli)}</div></td><td>${esc(p.nama || p.jenis)}<div class="xs muted">${esc(p.enrolId ? enrolLabel(enrolById(p.enrolId)) : '')}</div></td><td class="r nowrap">${rp(p.total)}</td><td>${payBadge(p)}</td><td class="act"><button class="icon-btn" title="Invoice" onclick="showInvoice('${p.id}')">${ic('file')}</button>${p.asalId ? '' : `<button class="icon-btn" title="Edit" onclick="formBeli({id:'${p.id}'})">${ic('edit')}</button>`}</td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Belum ada pembayaran.</div>'}</div>
+  ${lama.length ? `<details><summary class="b" style="cursor:pointer">Riwayat sistem lama (${lama.length} catatan, sebelum 2026)</summary><div class="table-wrap" style="margin:8px 0 0"><table class="t"><thead><tr><th>Tanggal</th><th>Jenis</th><th>Kelas / paket</th><th>Keterangan</th></tr></thead><tbody>${lama.map(r => `<tr><td class="nowrap small">${fmtDate(r.tanggal)}</td><td class="small">${esc(r.jenis)}</td><td class="small">${esc(r.kelas)}</td><td class="small muted">${esc(r.keterangan)}</td></tr>`).join('')}</tbody></table></div></details>` : ''}`;
+}
+/* ---------- gabungkan murid duplikat ---------- */
+function formGabung(id) {
+  const s = siswaById(id);
+  modal('Gabungkan Murid', `<div class="note bg-yellow">${ic('info')}<span>Semua kelas, paket, absensi & riwayat <b>${esc(s.nama)} (${esc(s.id)})</b> akan dipindah ke murid tujuan. Data ${esc(s.id)} lalu ditandai <b>Berhenti</b>. Pakai ini bila ada murid yang tercatat dua kali.</span></div>
+  <div class="field"><label>Gabungkan ke murid</label><select class="input" id="gbTo"><option value="">— pilih murid tujuan —</option>${S.dbAll.Siswa.filter(x => x.id !== id).sort((a, b) => a.nama.localeCompare(b.nama)).map(x => opt(x.id, `${x.nama} (${x.id}${x.panggilan ? ' · ' + x.panggilan : ''})`, '')).join('')}</select></div>`,
+  `<button class="btn ghost" onclick="siswaDetail('${id}')">Batal</button><button class="btn red" onclick="saveGabung('${id}')">Gabungkan</button>`);
+}
+async function saveGabung(from) {
+  const to = $('#gbTo').value; if (!to) return toast('Pilih murid tujuan', true);
+  const A = S.dbAll; const src = A.Siswa.find(x => x.id === from), dst = A.Siswa.find(x => x.id === to);
+  try {
+    for (const t of ['Enrol', 'Pembelian', 'Hadir', 'RiwayatLama']) {
+      const rows = (A[t] || []).filter(r => r.siswaId === from).map(r => Object.assign({}, r, { siswaId: to }));
+      for (let i = 0; i < rows.length; i += 200) if (rows.length) await saveRows(t, rows.slice(i, i + 200));
+    }
+    const fill = {}; ['tglLahir', 'sekolah', 'ortu', 'waOrtu', 'alamat'].forEach(k => { if (!dst[k] && src[k]) fill[k] = src[k]; });
+    if (src.tglDaftar && (!dst.tglDaftar || src.tglDaftar < dst.tglDaftar)) fill.tglDaftar = src.tglDaftar;
+    if (Object.keys(fill).length) await saveRow('Siswa', Object.assign({}, dst, fill));
+    await saveRow('Siswa', Object.assign({}, src, { status: 'Berhenti', catatan: ((src.catatan || '') + ` · digabung ke ${to}`).replace(/^ · /, '') }));
+    toast('Data murid digabungkan'); renderStaff(); siswaDetail(to);
+  } catch (e) { toast(e.message, true); }
 }
 function enrolCard(e) {
   const info = enrolInfo(e.id); const LL = L();
@@ -1527,12 +1605,12 @@ function enrolCard(e) {
   return `<div class="enrol-card ${done ? '' : info.warn}" ${done ? 'style="opacity:.65"' : ''}>
     <div class="row" style="align-items:flex-start"><div style="flex:1;min-width:0"><span class="badge ${e.tipe === 'Group' ? 'b-teal' : 'b-coral'}">${e.tipe === 'Group' ? 'Group' : esc(e.kategori || 'Private')}</span> ${done ? stBadge(e.status) : ''}
       <h4 style="font-size:16px;margin-top:6px">${esc(enrolLabel(e))}</h4>
-      <div class="xs muted">${[e.tipe === 'Group' ? 'Guru utama ' + esc(guruNama(kelasById(e.kelasId).guruId)) : '', esc(e.jadwal || ''), N(e.durasi) && N(e.durasi) !== STD() ? N(e.durasi) + ' menit' : '', N(e.travelFee) ? 'transport ' + rp(e.travelFee) + '/sesi' : ''].filter(Boolean).join(' · ')}</div></div>
+      <div class="xs muted">${[e.tipe === 'Group' ? 'Guru utama ' + esc(guruNama(kelasById(kelasIdsOf(e)[0]).guruId)) : '', esc(e.jadwal || ''), N(e.durasi) && N(e.durasi) !== STD() ? N(e.durasi) + ' menit' : '', N(e.travelFee) ? 'transport ' + rp(e.travelFee) + '/sesi' : ''].filter(Boolean).join(' · ')}</div></div>
       <div style="text-align:right"><div class="sisa-big" style="color:${info.sisa <= 0 ? 'var(--red)' : info.warn ? 'var(--yellow-d)' : 'var(--mint-d)'}">${info.sisa}</div><div class="xs muted">sisa sesi</div></div></div>
     ${packageBar(info)}
     <div class="xs muted">${info.credits} sesi dibeli · ${info.used} terpakai · ${info.izin} izin (tidak terpotong)${info.moved ? ` · ${info.moved} dipindah` : ''}${info.kurang ? ` · <b style="color:var(--red)">${info.kurang} sesi belum tercover paket</b>` : ''}</div>
     ${pk.map(k => `<div class="pk"><div class="pk-h"><b>${esc(k.p.nama || k.p.jenis)}</b>${payBadge(k.p)}<span class="spacer"></span><span class="b">${k.sisa}/${k.credits}</span></div>
-      <div class="xs muted">${fmtDate(k.p.tglBeli)} · ${N(k.p.sesi)} sesi${N(k.p.bonus) ? ` + ${N(k.p.bonus)} gratis` : ''} · jatah izin ${k.izinUsed}/${k.izinQuota} · ${rp(k.perCredit)}/sesi${k.movedOut ? ` · ${k.movedOut} dipindah` : ''}${k.hangusN ? ` · ${k.hangusN} hangus` : ''}</div>
+      <div class="xs muted">${fmtDate(k.p.tglBeli)}${k.p.kodeLama ? ' · ' + esc(k.p.kodeLama) : ''} · ${N(k.p.sesi)} sesi${N(k.p.bonus) ? ` + ${N(k.p.bonus)} gratis` : ''} · jatah izin ${k.izinUsed}/${k.izinQuota} · ${rp(k.perCredit)}/sesi${k.awal ? ` · ${k.awal} terpakai sebelum migrasi` : ''}${k.movedOut ? ` · ${k.movedOut} dipindah` : ''}${k.hangusN ? ` · ${k.hangusN} hangus` : ''}${k.p.tglExpired ? ` · <span style="color:${k.p.tglExpired < todayStr() && k.sisa > 0 ? 'var(--red)' : 'inherit'}">berlaku s/d ${fmtDate(k.p.tglExpired)}</span>` : ''}${k.p.referralGuruId || k.p.referralNama ? ` · referral ${esc(k.p.referralNama || guruNama(k.p.referralGuruId))}` : ''}</div>
       ${k.sisa > 0 && !done ? `<button class="btn ghost sm" style="margin-top:6px" onclick="formPindah('${k.id}')">${ic('swap')}Pindahkan sisa</button>` : ''}</div>`).join('')}
     ${done ? `<div class="row"><button class="btn ghost sm" onclick="formEnrol('${e.siswaId}','${e.id}')">${ic('edit')}Edit</button></div>` : `<div class="row"><button class="btn sm yellow" onclick="formBeli({siswaId:'${e.siswaId}',enrolId:'${e.id}'})">${ic('plus')}Beli paket</button><button class="btn ghost sm" onclick="formEnrol('${e.siswaId}','${e.id}')">${ic('edit')}Edit</button>${info.warn ? `<button class="btn ghost sm" onclick="waSisa('${e.id}')">${ic('wa')}Ingatkan</button>` : ''}</div>`}
   </div>`;
@@ -1557,7 +1635,8 @@ function formEnrol(siswaId, id, presetKelas) {
 function feBody(e) {
   e = e || S.fe.edit || {};
   if (S.fe.tipe === 'Group') {
-    return `<div class="field full"><label>Kelas group</label><select class="input" name="kelasId" required><option value="">— pilih kelas —</option>${D('KelasGroup').filter(k => k.status !== 'Nonaktif' || k.id === e.kelasId).map(k => opt(k.id, `${k.nama} · ${guruNama(k.guruId)}`, e.kelasId)).join('')}</select><span class="hint">Belum ada kelasnya? Buat dulu di menu Kelas & Pendaftaran.</span></div>`;
+    const cur = kelasIdsOf(e);
+    return `<div class="field full"><label>Kelas group (boleh lebih dari satu jadwal — paketnya dipakai bersama)</label><div class="chips" style="max-height:220px;overflow:auto">${D('KelasGroup').filter(k => k.status !== 'Nonaktif' || cur.includes(k.id)).map(k => `<label class="chip" style="cursor:pointer"><input type="checkbox" name="kelasIds" value="${k.id}" ${cur.includes(k.id) ? 'checked' : ''} style="margin-right:6px">${esc(k.nama)} · ${esc(guruNama(k.guruId))}</label>`).join('') || '<span class="muted small">Belum ada kelas group.</span>'}</div><span class="hint">Belum ada kelasnya? Buat dulu di menu Kelas & Pendaftaran.</span></div>`;
   }
   return `<div class="field"><label>Kategori</label><select class="input" name="kategori" onchange="S.fe.kategori=this.value;feTarifRefresh()">${KATS().map(k => opt(k, k, S.fe.kategori)).join('')}</select></div>
     <div class="field"><label>Guru</label><select class="input" name="guruId" onchange="S.fe.guruId=this.value;feTarifRefresh()"><option value="">— pilih guru —</option>${D('Guru').filter(g => g.status !== 'Nonaktif').map(g => opt(g.id, g.nama, S.fe.guruId)).join('')}</select></div>
@@ -1577,10 +1656,11 @@ function feTarifOpts() {
 function feTarifRefresh() { const el = $('#feTarif'); if (el) el.innerHTML = feTarifOpts(); }
 async function saveEnrol(id) {
   const f = formData($('#fE'));
+  delete f.kelasIds; f.kelasId = $$('#fE input[name=kelasIds]:checked').map(x => x.value).join(',');
   if (!f.siswaId) return toast('Pilih murid', true);
-  if (f.tipe === 'Group' && !f.kelasId) return toast('Pilih kelas group', true);
+  if (f.tipe === 'Group' && !f.kelasId) return toast('Pilih minimal satu kelas group', true);
   if (f.tipe === 'Private' && (!f.guruId || !f.lokasi)) return toast('Pilih guru & lokasi', true);
-  if (f.tipe === 'Group') { f.kategori = 'Group'; f.guruId = ''; f.tarifId = ''; f.lokasi = kelasById(f.kelasId).lokasi || ''; f.durasi = ''; f.travelFee = ''; }
+  if (f.tipe === 'Group') { f.kategori = 'Group'; f.guruId = ''; f.tarifId = ''; f.lokasi = kelasById(f.kelasId.split(',')[0]).lokasi || ''; f.durasi = ''; f.travelFee = ''; }
   else f.kelasId = '';
   try { await saveRow('Enrol', Object.assign(id ? { id } : {}, f)); toast('Pendaftaran kelas tersimpan'); renderStaff(); siswaDetail(f.siswaId); }
   catch (e) { toast(e.message, true); }
@@ -1595,7 +1675,7 @@ function delEnrol(id) {
 function formBeli(o) {
   const p = o.id ? byId('Pembelian', o.id) : null;
   const siswaId = p ? p.siswaId : o.siswaId || '';
-  S.fb = { paketId: p ? p.paketId : '', manualHarga: !!p };
+  S.fb = { paketId: p ? p.paketId : '', manualHarga: !!p, keepTarif: !!p };
   const enrols = sid => D('Enrol').filter(e => e.siswaId === sid && (e.status !== 'Selesai' && e.status !== 'Berhenti' || (p && p.enrolId === e.id)));
   const v = p || { siswaId, enrolId: o.enrolId || '', jenis: 'Paket', tglBeli: todayStr(), status: 'Lunas', tglBayar: todayStr(), metode: 'Transfer', diskon: 0, biayaLain: 0 };
   if (!p && !v.enrolId && siswaId) { const es = enrols(siswaId); if (es.length === 1) v.enrolId = es[0].id; }
@@ -1623,6 +1703,10 @@ function formBeli(o) {
       <div class="field"><label>Tanggal bayar</label><input class="input" type="date" name="tglBayar" value="${esc(v.tglBayar || todayStr())}"></div>
       <div class="field"><label>Metode</label><select class="input" name="metode">${['Transfer', 'Tunai', 'QRIS', 'Lainnya'].map(x => opt(x, x, v.metode)).join('')}</select></div>
     </div>
+    <div class="sec-title">Lainnya (opsional)</div>
+    <div class="field"><label>Berlaku sampai</label><input class="input" type="date" name="tglExpired" value="${esc(v.tglExpired || '')}"></div>
+    <div class="field"><label>Referral paket ini (guru)</label><select class="input" name="referralGuruId"><option value="">— tidak ada —</option>${D('Guru').map(g => opt(g.id, g.nama, v.referralGuruId)).join('')}</select><span class="hint">Perujuk dapat insentif referral per sesi dari paket ini.</span></div>
+    <input type="hidden" name="tarifId" id="fbTarif" value="${esc(v.tarifId || '')}">
     <div class="field full"><label>Catatan</label><input class="input" name="catatan" value="${esc(v.catatan || '')}"></div>
   </form>`, `<button class="btn ghost" onclick="${siswaId ? `siswaDetail('${siswaId}')` : 'closeModal()'}">Batal</button><button class="btn" onclick="saveBeli('${p ? p.id : ''}')">Simpan</button>`);
   S.fb.siswaId = siswaId;
@@ -1636,7 +1720,8 @@ function fbEnrolOpts(sid, sel) {
 function fbSiswa(sid) { S.fb.siswaId = sid; const es = D('Enrol').filter(e => e.siswaId === sid && e.status !== 'Selesai' && e.status !== 'Berhenti'); $('#fbEnrol').innerHTML = fbEnrolOpts(sid, es.length === 1 ? es[0].id : ''); fbPaketOpts(); fbCalc(); }
 function fbPaketOpts(sel) {
   const e = enrolById($('#fbEnrol').value);
-  const list = D('Paket').filter(p => p.aktif !== 'Tidak').filter(p => {
+  const cab = cabangOf(siswaById(S.fb.siswaId || ($('#fbSiswa') || {}).value));
+  const list = D('Paket').filter(p => p.aktif !== 'Tidak' && (!p.cabang || p.cabang === cab)).filter(p => {
     if (!e) return p.jenis === 'Registrasi' || p.untuk === 'Semua';
     if (p.jenis === 'Registrasi') return true;
     if (e.tipe === 'Group') return p.untuk === 'Group' || p.untuk === 'Semua';
@@ -1647,10 +1732,24 @@ function fbPaketOpts(sel) {
 function fbHargaSesi() {
   const e = enrolById($('#fbEnrol').value); if (!e) return { v: 0, hint: '' };
   if (e.tipe === 'Group') { const pk = byId('Paket', $('#fbPaket').value); return pk && N(pk.sesi) ? { v: N(pk.harga) / N(pk.sesi), hint: 'harga paket ÷ jumlah sesi' } : { v: 0, hint: '' }; }
-  const t = tarifById(e.tarifId); if (!t) return { v: 0, hint: 'Tarif guru belum diatur' };
+  const t = fbTarif(e); if (!t) return { v: 0, hint: 'Tarif guru belum diatur' };
   const fac = (N(e.durasi) || STD()) / STD();
+  const sesi = N($('#fbSesi').value);
+  if (N(t.hargaPaket) && sesi) return { v: N(t.hargaPaket) / sesi, pkg: N(t.hargaPaket), hint: `harga paket ${rp(t.hargaPaket)} (tarif ${t.kodeLama || 'v' + t.versi})` };
   const v = N(t.nilaiKelas) * fac + N(e.travelFee);
   return { v, hint: `${rp(t.nilaiKelas)}${fac !== 1 ? ` × ${N(e.durasi)}/${STD()} mnt` : ''}${N(e.travelFee) ? ` + transport ${rp(e.travelFee)}` : ''}` };
+}
+// tarif yang dipakai paket: versi khusus paket (mis. Malang P12) bila ada, selain itu tarif pendaftaran
+function fbTarif(e) {
+  const base = tarifById(e.tarifId); const pk = $('#fbPaket').value;
+  let t = base;
+  if (base && pk) {
+    const sp = D('TarifPrivat').filter(r => r.guruId === base.guruId && r.kategori === base.kategori && r.lokasi === base.lokasi && r.paketId === pk && r.aktif !== 'Tidak')
+      .sort((a, b) => (b.tglBerlaku || '').localeCompare(a.tglBerlaku || ''));
+    if (sp.length) t = sp[0];
+  }
+  const h = $('#fbTarif'); if (h && t && !S.fb.keepTarif) h.value = t.id;
+  return t;
 }
 function fbPickPaket(id) {
   S.fb.paketId = id; S.fb.manualHarga = false;
@@ -1664,6 +1763,7 @@ function fbCalc() {
   if (!S.fb.manualHarga) {
     let h = 0;
     if (p && N(p.harga)) h = N(p.harga);
+    else if (hs.pkg) h = hs.pkg;
     else h = Math.round(N($('#fbSesi').value) * hs.v);
     $('#fbHarga').value = h || '';
   }
@@ -1728,9 +1828,9 @@ function kelasGroup() {
   const ks = D('KelasGroup').slice().sort((a, b) => (a.status === 'Nonaktif') - (b.status === 'Nonaktif') || a.nama.localeCompare(b.nama));
   return `<div class="row"><span class="muted small">Kelas group bisa diajar guru berbeda tiap sesi. Fee guru dihitung dari jumlah murid yang hadir.</span><div class="spacer"></div><button class="btn" onclick="formKelas()">${ic('plus')}Kelas group baru</button></div>
   ${ks.length ? `<div class="grid g3">${ks.map(k => {
-    const mem = D('Enrol').filter(e => e.tipe === 'Group' && e.kelasId === k.id && e.status !== 'Selesai' && e.status !== 'Berhenti');
+    const mem = D('Enrol').filter(e => e.tipe === 'Group' && kelasIdsOf(e).includes(k.id) && e.status !== 'Selesai' && e.status !== 'Berhenti');
     return `<div class="kelas-card" style="${k.status === 'Nonaktif' ? 'opacity:.6;' : ''}border-top-color:${['var(--teal)', 'var(--coral)', 'var(--blue)', 'var(--yellow)', 'var(--mint)'][(k.id.charCodeAt(k.id.length - 1) || 0) % 5]}">
-      <div class="row"><h4 style="flex:1">${esc(k.nama)}</h4><button class="icon-btn" onclick="formKelas('${k.id}')">${ic('edit')}</button></div>
+      <div class="row"><h4 style="flex:1">${esc(k.nama)}${cabBadge(k)}</h4><button class="icon-btn" onclick="formKelas('${k.id}')">${ic('edit')}</button></div>
       <div class="small muted">${esc(k.program || '')}${k.program ? ' · ' : ''}${esc(k.hari || '')} ${esc(k.jam || '')} · ${esc(lokNama(k.lokasi))}<br>Guru utama: <b>${esc(guruNama(k.guruId))}</b>${N(k.durasi) ? ' · ' + N(k.durasi) + ' mnt' : ''}</div>
       <div class="row"><span class="badge b-teal">${mem.length}${N(k.kapasitas) ? '/' + N(k.kapasitas) : ''} murid</span>${k.status === 'Nonaktif' ? '<span class="badge b-gray">Nonaktif</span>' : ''}</div>
       <div>${mem.map(e => { const s = siswaById(e.siswaId); return `<div class="li" style="padding:6px 0"><div class="meta"><b class="small" style="cursor:pointer" onclick="siswaDetail('${s.id}')">${esc(s.nama)}</b></div>${sisaBadge(enrolInfo(e.id))}</div>`; }).join('') || '<div class="muted small">Belum ada murid.</div>'}</div>
@@ -1760,6 +1860,7 @@ function formKelas(id) {
     <div class="field"><label>Lokasi</label><select class="input" name="lokasi">${LOKS().map(l => opt(l.kode, l.nama, k.lokasi || 'DS')).join('')}</select></div>
     <div class="field"><label>Kapasitas</label><input class="input" type="number" name="kapasitas" value="${esc(k.kapasitas || '')}"></div>
     <div class="field"><label>Status</label><select class="input" name="status">${['Aktif', 'Nonaktif'].map(x => opt(x, x, k.status)).join('')}</select></div>
+    <div class="field"><label>Cabang</label>${cabangSelect(k.cabang)}</div>
     <div class="field full"><label>Catatan</label><input class="input" name="catatan" value="${esc(k.catatan || '')}"></div>
   </form>`, `<button class="btn ghost" onclick="closeModal()">Batal</button>${id ? `<button class="btn ghost" onclick="delKelas('${id}')">${ic('trash')}Hapus</button>` : ''}<button class="btn" onclick="saveKelas('${id || ''}')">Simpan</button>`);
 }
@@ -1768,7 +1869,7 @@ async function saveKelas(id) {
   try { await saveRow('KelasGroup', Object.assign(id ? { id } : {}, f)); closeModal(); toast('Kelas tersimpan'); renderPage(); } catch (e) { toast(e.message, true); }
 }
 function delKelas(id) {
-  if (D('Enrol').some(e => e.kelasId === id) || D('Sesi').some(s => s.kelasId === id)) return toast('Kelas sudah dipakai. Ubah status menjadi Nonaktif.', true);
+  if (D('Enrol').some(e => kelasIdsOf(e).includes(id)) || D('Sesi').some(s => s.kelasId === id)) return toast('Kelas sudah dipakai. Ubah status menjadi Nonaktif.', true);
   confirmBox('Hapus kelas ini?', async () => { await removeRow('KelasGroup', id); renderPage(); });
 }
 
@@ -1794,8 +1895,8 @@ function sesiLaporan() {
     <div class="spacer"></div><button class="btn ghost sm" onclick="csvSesi()">${ic('download')}Unduh CSV</button></div>
     <div class="row small muted" style="margin-bottom:8px"><b class="num" style="color:var(--ink)">${list.length}</b> sesi · <b class="num" style="color:var(--ink)">${nH}</b> kehadiran murid</div>
     <div class="table-wrap"><table class="t"><thead><tr><th>Tanggal</th><th>Kelas</th><th>Guru</th><th>Murid & absen</th><th>Materi</th><th></th></tr></thead><tbody>
-    ${list.map(s => { const hs = D('Hadir').filter(h => h.sesiId === s.id); return `<tr><td class="nowrap">${fmtDate(s.tanggal)}<div class="xs muted">${dayName(s.tanggal)} ${esc(s.jam || '')}${N(s.durasi) ? ' · ' + N(s.durasi) + ' mnt' : ''}</div></td><td><span class="badge ${s.tipe === 'Group' ? 'b-teal' : 'b-coral'}">${s.tipe === 'Group' ? 'G' : 'P'}</span> ${esc(sesiLabel(s, hs))}</td><td>${esc(guruNama(s.guruId))}</td>
-      <td>${hs.map(h => `<span class="nowrap small" style="margin-right:8px">${esc(siswaById(h.siswaId).nama.split(' ')[0])} ${hadirBadge(h.status)}</span>`).join(' ')}</td><td class="small muted" style="max-width:220px">${esc(s.materi || '')}${s.catatan ? `<div class="xs" style="color:var(--coral-d)">📝 ${esc(s.catatan)}</div>` : ''}</td>
+    ${list.map(s => { const hs = D('Hadir').filter(h => h.sesiId === s.id); return `<tr><td class="nowrap">${fmtDate(s.tanggal)}<div class="xs muted">${dayName(s.tanggal)} ${esc(s.jam || '')}${N(s.durasi) ? ' · ' + N(s.durasi) + ' mnt' : ''}</div></td><td><span class="badge ${s.tipe === 'Group' ? 'b-teal' : 'b-coral'}">${s.tipe === 'Group' ? 'G' : 'P'}</span> ${esc(sesiLabel(s, hs))}</td><td>${esc(guruNama(s.guruId))}${s.asisten ? `<div class="xs muted">asisten: ${esc(s.asisten)}</div>` : ''}</td>
+      <td>${hs.map(h => `<span class="nowrap small" style="margin-right:8px">${esc(siswaById(h.siswaId).nama.split(' ')[0])} ${hadirBadge(h.status)}${h.mode === 'bebas' && h.status !== 'Hadir' ? '<span class="xs muted"> (tdk dipotong)</span>' : h.mode === 'potong' && h.status !== 'Hadir' ? '<span class="xs muted"> (dipotong)</span>' : ''}</span>`).join(' ')}</td><td class="small muted" style="max-width:220px">${esc(s.materi || '')}${s.catatan ? `<div class="xs" style="color:var(--coral-d)">📝 ${esc(s.catatan)}</div>` : ''}</td>
       <td class="act"><button class="icon-btn" title="Edit" onclick="sfLoad('${s.id}');S.tab.sesi='input';renderPage()">${ic('edit')}</button></td></tr>`; }).join('') || '<tr><td colspan="6"><div class="empty">Belum ada sesi pada filter ini.</div></td></tr>'}
     </tbody></table></div></div>`;
 }
@@ -1854,7 +1955,7 @@ function paketMaster() {
   return `<div class="card"><div class="card-head"><h3>Daftar paket</h3><div class="spacer"></div><button class="btn" onclick="formPaket()">${ic('plus')}Paket baru</button></div>
   <div class="note bg-blue" style="margin-bottom:10px">${ic('info')}<span>Paket private dengan harga <b>0</b> otomatis dihitung = jumlah sesi × tarif guru (sesuai lokasi & durasi). <b>Sesi gratis</b> menambah kredit sesi; <b>jatah izin</b> = berapa kali murid boleh izin tanpa sesi terpotong.</span></div>
   <div class="table-wrap"><table class="t"><thead><tr><th>Paket</th><th>Jenis</th><th>Untuk</th><th class="c">Sesi</th><th class="c">Gratis</th><th class="c">Jatah izin</th><th class="r">Harga</th><th></th></tr></thead><tbody>
-  ${D('Paket').map(p => `<tr style="${p.aktif === 'Tidak' ? 'opacity:.5' : ''}"><td><b>${esc(p.nama)}</b></td><td>${esc(p.jenis)}</td><td>${esc(p.untuk)}${p.kategori ? `<div class="xs muted">${esc(p.kategori)}</div>` : ''}</td><td class="c">${N(p.sesi) || '-'}</td><td class="c">${N(p.bonus) || '-'}</td><td class="c">${N(p.jatahIzin) || '-'}</td><td class="r nowrap">${N(p.harga) ? rp(p.harga) : '<span class="muted small">ikut tarif guru</span>'}</td><td class="act"><button class="icon-btn" onclick="formPaket('${p.id}')">${ic('edit')}</button></td></tr>`).join('')}
+  ${D('Paket').map(p => `<tr style="${p.aktif === 'Tidak' ? 'opacity:.5' : ''}"><td><b>${esc(p.nama)}</b>${p.cabang ? ` <span class="badge b-gray">${esc(p.cabang)}</span>` : ''}</td><td>${esc(p.jenis)}</td><td>${esc(p.untuk)}${p.kategori ? `<div class="xs muted">${esc(p.kategori)}</div>` : ''}</td><td class="c">${N(p.sesi) || '-'}</td><td class="c">${N(p.bonus) || '-'}</td><td class="c">${N(p.jatahIzin) || '-'}</td><td class="r nowrap">${N(p.harga) ? rp(p.harga) : '<span class="muted small">ikut tarif guru</span>'}</td><td class="act"><button class="icon-btn" onclick="formPaket('${p.id}')">${ic('edit')}</button></td></tr>`).join('')}
   </tbody></table></div></div>`;
 }
 function formPaket(id) {
@@ -1869,6 +1970,7 @@ function formPaket(id) {
     <div class="field"><label>Sesi gratis</label><input class="input" type="number" name="bonus" value="${esc(p.bonus || '')}"></div>
     <div class="field"><label>Jatah izin</label><input class="input" type="number" name="jatahIzin" value="${esc(p.jatahIzin || '')}"></div>
     <div class="field"><label>Aktif</label><select class="input" name="aktif">${['Ya', 'Tidak'].map(x => opt(x, x, p.aktif)).join('')}</select></div>
+    <div class="field"><label>Khusus cabang</label><select class="input" name="cabang"><option value="">Semua cabang</option>${CABANGS().map(c => opt(c, c, p.cabang)).join('')}</select></div>
   </form>`, `<button class="btn ghost" onclick="closeModal()">Batal</button><button class="btn" onclick="savePaket('${id || ''}')">Simpan</button>`);
 }
 async function savePaket(id) { const f = formData($('#fPk')); if (!f.nama) return toast('Nama paket wajib', true); try { await saveRow('Paket', Object.assign(id ? { id } : {}, f)); closeModal(); renderPage(); } catch (e) { toast(e.message, true); } }
@@ -1898,7 +2000,7 @@ function guruData() {
   const p = thisPeriod();
   return `<div class="card"><div class="card-head"><h3>Guru</h3><div class="spacer"></div><button class="btn" onclick="formGuru()">${ic('plus')}Guru baru</button></div>
   <div class="table-wrap"><table class="t"><thead><tr><th>ID</th><th>Nama</th><th>WhatsApp</th><th>PIN login</th><th class="c">Sesi ${BULAN[+p.slice(5) - 1]}</th><th>Status</th><th></th></tr></thead><tbody>
-  ${D('Guru').map(g => `<tr style="${g.status === 'Nonaktif' ? 'opacity:.55' : ''}"><td class="small">${esc(g.id)}</td><td><b>${esc(g.nama)}</b></td><td class="small">${esc(g.wa || '-')}</td><td class="num">${esc(g.pin || '-')}</td><td class="c">${D('Sesi').filter(s => s.guruId === g.id && s.tanggal.startsWith(p)).length}</td><td>${stBadge(g.status)}</td>
+  ${D('Guru').map(g => `<tr style="${g.status === 'Nonaktif' ? 'opacity:.55' : ''}"><td class="small">${esc(g.id)}</td><td><b>${esc(g.nama)}</b>${cabBadge(g)}</td><td class="small">${esc(g.wa || '-')}</td><td class="num">${esc(g.pin || '-')}</td><td class="c">${D('Sesi').filter(s => s.guruId === g.id && s.tanggal.startsWith(p)).length}</td><td>${stBadge(g.status)}</td>
   <td class="act"><button class="icon-btn" title="Edit" onclick="formGuru('${g.id}')">${ic('edit')}</button><button class="icon-btn" title="Kirim akses Portal Guru" onclick="waGuru('${g.id}')">${ic('key')}</button></td></tr>`).join('')}
   </tbody></table></div>
   <p class="small muted" style="margin-top:10px">${isOwner() ? 'Tarif & fee guru diatur di tab Tarif Private / Tarif Group Class.' : 'Data fee guru hanya bisa dilihat Owner.'}</p></div>`;
@@ -1910,6 +2012,7 @@ function formGuru(id) {
     <div class="field"><label>WhatsApp</label><input class="input" name="wa" value="${esc(g.wa || '')}"></div>
     <div class="field"><label>PIN login (4 angka)</label><input class="input" name="pin" inputmode="numeric" placeholder="otomatis" value="${esc(g.pin || '')}"></div>
     <div class="field"><label>Status</label><select class="input" name="status">${['Aktif', 'Nonaktif'].map(x => opt(x, x, g.status)).join('')}</select></div>
+    <div class="field"><label>Cabang</label>${cabangSelect(g.cabang)}</div>
     <div class="field full"><label>Catatan</label><input class="input" name="catatan" value="${esc(g.catatan || '')}"></div>
   </form>`, `<button class="btn ghost" onclick="closeModal()">Batal</button><button class="btn" onclick="saveGuru('${id || ''}')">Simpan</button>`);
 }
@@ -1928,7 +2031,7 @@ function tarifPrivat() {
   return `<div class="card"><div class="card-head"><h3>Tarif private per guru</h3><select class="input" style="width:auto" onchange="setF('tpg',this.value)"><option value="">Semua guru</option>${D('Guru').map(g => opt(g.id, g.nama, gid)).join('')}</select><div class="spacer"></div><button class="btn" onclick="formTarif()">${ic('plus')}Tarif baru / versi baru</button></div>
   <div class="note bg-yellow" style="margin-bottom:10px">${ic('info')}<span><b>Fee guru = (nilai kelas − admin fee) × % guru</b>, atau isi fee manual. Kenaikan harga? Buat <b>versi baru</b> dengan tanggal berlaku — murid lama tetap memakai versi yang dipilih saat mendaftar.</span></div>
   <div class="table-wrap"><table class="t"><thead><tr><th>Guru</th><th>Kategori</th><th>Lokasi</th><th>Versi</th><th>Berlaku</th><th class="r">Nilai kelas</th><th class="r">% Guru</th><th class="r">Admin</th><th class="r">Fee guru</th><th class="r">Classroom</th><th class="r">Referral</th><th></th></tr></thead><tbody>
-  ${list.map(t => { const fee = feeOf(t); const adm = /%/.test(String(t.adminFee)) ? N(t.nilaiKelas) * N(t.adminFee) / 100 : N(t.adminFee); return `<tr style="${t.aktif === 'Tidak' ? 'opacity:.5' : ''}"><td><b>${esc(guruNama(t.guruId))}</b></td><td class="small">${esc(t.kategori)}</td><td class="small">${esc(t.lokasi)}</td><td>${esc(t.versi)}</td><td class="small nowrap">${fmtDate(t.tglBerlaku)}</td><td class="r">${rp(t.nilaiKelas)}</td><td class="r">${fmtN(t.persenGuru)}%</td><td class="r">${esc(/%/.test(String(t.adminFee)) ? t.adminFee : rp(t.adminFee))}</td><td class="r b">${rp(fee)}${N(t.feeGuruManual) ? '<div class="xs muted">manual</div>' : ''}</td><td class="r">${rp(t.classroomFee)}</td><td class="r small">${fmtN(t.persenReferral)}% · ${rp(Math.round((N(t.nilaiKelas) - adm) * N(t.persenReferral) / 100))}</td><td class="act"><button class="icon-btn" onclick="formTarif('${t.id}')">${ic('edit')}</button><button class="icon-btn" title="Duplikat jadi versi baru" onclick="formTarif('${t.id}',true)">${ic('plus')}</button></td></tr>`; }).join('') || '<tr><td colspan="12"><div class="empty">Belum ada tarif.</div></td></tr>'}
+  ${list.map(t => { const fee = feeOf(t); const adm = /%/.test(String(t.adminFee)) ? N(t.nilaiKelas) * N(t.adminFee) / 100 : N(t.adminFee); return `<tr style="${t.aktif === 'Tidak' ? 'opacity:.5' : ''}"><td><b>${esc(guruNama(t.guruId))}</b></td><td class="small">${esc(t.kategori)}</td><td class="small">${esc(t.lokasi)}${t.paketId ? `<div class="xs muted">paket ${esc(t.paketId)}</div>` : ''}</td><td>${esc(t.versi)}</td><td class="small nowrap">${fmtDate(t.tglBerlaku)}</td><td class="r">${rp(t.nilaiKelas)}</td><td class="r">${fmtN(t.persenGuru)}%</td><td class="r">${esc(/%/.test(String(t.adminFee)) ? t.adminFee : rp(t.adminFee))}</td><td class="r b">${rp(fee)}${N(t.feeGuruManual) ? '<div class="xs muted">manual</div>' : ''}</td><td class="r">${rp(t.classroomFee)}</td><td class="r small">${fmtN(t.persenReferral)}% · ${rp(Math.round((N(t.nilaiKelas) - adm) * N(t.persenReferral) / 100))}</td><td class="act"><button class="icon-btn" onclick="formTarif('${t.id}')">${ic('edit')}</button><button class="icon-btn" title="Duplikat jadi versi baru" onclick="formTarif('${t.id}',true)">${ic('plus')}</button></td></tr>`; }).join('') || '<tr><td colspan="12"><div class="empty">Belum ada tarif.</div></td></tr>'}
   </tbody></table></div></div>`;
 }
 function formTarif(id, dup) {
@@ -1948,6 +2051,8 @@ function formTarif(id, dup) {
     <div class="field"><label>% referral</label><input class="input" name="persenReferral" value="${esc(t.persenReferral || '')}"></div>
     <div class="field"><label>Transport default per sesi</label><input class="input" type="number" name="travelFee" value="${esc(t.travelFee || '')}"></div>
     <div class="field"><label>Aktif</label><select class="input" name="aktif">${['Ya', 'Tidak'].map(x => opt(x, x, t.aktif)).join('')}</select></div>
+    <div class="field"><label>Khusus paket (opsional)</label><select class="input" name="paketId"><option value="">Semua paket</option>${D('Paket').filter(p => p.untuk !== 'Group').map(p => opt(p.id, p.nama, t.paketId)).join('')}</select><span class="hint">Mis. Malang: tarif P12 berbeda dari P4.</span></div>
+    <div class="field"><label>Harga paket (opsional)</label><input class="input" type="number" name="hargaPaket" value="${esc(t.hargaPaket || '')}"><span class="hint">Harga jual paket ke murid bila tidak = sesi × nilai kelas.</span></div>
     <div class="field full"><div class="note bg-mint" id="ftCalc"></div></div>
   </form>`, `<button class="btn ghost" onclick="closeModal()">Batal</button>${id && !dup ? `<button class="btn ghost" onclick="delTarif('${id}')">${ic('trash')}Hapus</button>` : ''}<button class="btn" onclick="saveTarif('${id && !dup ? id : ''}')">Simpan</button>`);
   ftCalc();
@@ -2122,6 +2227,7 @@ function pgPengaturan() {
     ${f('referralPersen', 'Referral group class (%)', 'text', 'Private memakai % di tabel tarif')}${f('referralBulan', 'Masa berlaku referral (bulan)', 'number')}
     <div class="field full"><label>Lokasi kelas (satu per baris: KODE | Nama | Ya bila ke rumah murid)</label><textarea class="input" name="lokasiTxt" style="min-height:120px">${esc(LOKS().map(l => `${l.kode} | ${l.nama} | ${l.rumah || ''}`).join('\n'))}</textarea></div>
     <div class="field full"><label>Kategori kelas private (pisahkan koma)</label><input class="input" name="kategoriTxt" value="${esc(KATS().join(', '))}"></div>
+    <div class="field full"><label>Cabang (pisahkan koma)</label><input class="input" name="cabangTxt" value="${esc(CABANGS().join(', '))}"><span class="hint">Murid/guru/kelas tanpa cabang dianggap cabang pertama.</span></div>
   </form><div class="row" style="margin-top:12px"><div class="spacer"></div><button class="btn" onclick="saveSet('fSet2')">Simpan aturan</button></div></div>` : ''}
   <div class="grid g2"><div class="card"><h3>Ganti password saya</h3><form id="fPw" class="form-grid"><div class="field full"><label>Password lama</label><input class="input" type="password" name="oldPass"></div><div class="field full"><label>Password baru (min. 6)</label><input class="input" type="password" name="newPass"></div></form><div class="row" style="margin-top:12px"><div class="spacer"></div><button class="btn" onclick="savePw()">Ganti password</button></div></div>
   ${isOwner() ? `<div class="card"><h3>Akun Owner & Admin</h3>${(D('Users') || []).map(u => `<div class="li"><div class="avatar">${initials(u.nama)}</div><div class="meta"><b>${esc(u.nama)}</b><span class="small muted">${esc(u.username)} · ${u.role === 'owner' ? 'Owner' : 'Admin'}</span></div><button class="btn ghost sm" onclick="formUser('${esc(u.username)}')">Reset password</button></div>`).join('')}<button class="btn ghost sm" style="margin-top:10px" onclick="formUser('')">${ic('plus')}Tambah admin</button></div>` : ''}</div>
@@ -2133,15 +2239,16 @@ async function saveSet(fid) {
     f.lokasi = JSON.stringify(f.lokasiTxt.split('\n').map(l => l.split('|').map(x => x.trim())).filter(a => a[0]).map(a => ({ kode: a[0], nama: a[1] || a[0], rumah: /^y/i.test(a[2] || '') ? 'Ya' : '' })));
     delete f.lokasiTxt;
   }
+  if (f.cabangTxt !== undefined) { f.cabang = JSON.stringify(f.cabangTxt.split(',').map(x => x.trim()).filter(Boolean)); delete f.cabangTxt; }
   if (f.kategoriTxt !== undefined) { f.kategori = JSON.stringify(f.kategoriTxt.split(',').map(x => x.trim()).filter(Boolean)); delete f.kategoriTxt; }
-  try { const r = await call('saveSettings', { settings: f }); S.settings = r.settings; bump(); toast('Pengaturan tersimpan'); renderStaff(); } catch (e) { toast(e.message, true); }
+  try { const r = await call('saveSettings', { settings: f }); S.settings = r.settings; applyCabang(); toast('Pengaturan tersimpan'); renderStaff(); } catch (e) { toast(e.message, true); }
 }
 async function savePw() { const f = formData($('#fPw')); try { await call('changePassword', f); toast('Password diganti'); $('#fPw').reset(); } catch (e) { toast(e.message, true); } }
 function formUser(u) {
   modal(u ? 'Reset Password' : 'Tambah Admin', `<form id="fU" class="form-grid"><div class="field"><label>Username</label><input class="input" name="username" value="${esc(u)}" ${u ? 'readonly' : ''}></div><div class="field"><label>Nama</label><input class="input" name="nama"></div><div class="field full"><label>Password baru (min. 6)</label><input class="input" name="newPass" type="text"></div></form>`,
     `<button class="btn ghost" onclick="closeModal()">Batal</button><button class="btn" onclick="saveUser()">Simpan</button>`);
 }
-async function saveUser() { const f = formData($('#fU')); try { const r = await call('resetUser', Object.assign(f, { role: 'admin' })); S.db.Users = r.users; closeModal(); toast('Akun tersimpan'); renderPage(); } catch (e) { toast(e.message, true); } }
+async function saveUser() { const f = formData($('#fU')); try { const r = await call('resetUser', Object.assign(f, { role: 'admin' })); S.dbAll.Users = r.users; applyCabang(); closeModal(); toast('Akun tersimpan'); renderPage(); } catch (e) { toast(e.message, true); } }
 
 /* =========================================================
    PORTAL GURU — cukup input absensi
@@ -2150,14 +2257,15 @@ function renderGuru() {
   const g = S.g.guru; const t = S.tab.guru_p || 'input';
   if (!S.sf || S.sf.guruId !== g.id) sfNew();
   const p = thisPeriod();
-  const mine = D('Sesi').filter(s => s.guruId === g.id).sort((a, b) => (b.tanggal + b.jam).localeCompare(a.tanggal + a.jam));
+  const cutoff = addDays_(todayStr(), -120);
+  const mine = D('Sesi').filter(s => s.guruId === g.id && s.tanggal >= cutoff).sort((a, b) => (b.tanggal + b.jam).localeCompare(a.tanggal + a.jam));
   const bulan = mine.filter(s => s.tanggal.startsWith(p));
-  const warn = D('Enrol').filter(e => (e.tipe === 'Group' ? D('KelasGroup').some(k => k.id === e.kelasId && k.guruId === g.id) : e.guruId === g.id)).filter(e => { const i = enrolInfo(e.id); return i.warn === 'habis' || i.kurang > 0; });
+  const warn = D('Enrol').filter(e => (e.tipe === 'Group' ? D('KelasGroup').some(k => kelasIdsOf(e).includes(k.id) && k.guruId === g.id) : e.guruId === g.id)).filter(e => { const i = enrolInfo(e.id); return i.warn === 'habis' || i.kurang > 0; });
   $('#app').innerHTML = `<div class="p-top"><img src="${LOGO}" alt=""><div><b style="font-family:var(--font-h);font-size:17px">${esc(S.settings.namaLembaga)}</b><div class="xs muted">Portal Guru</div></div><div class="spacer"></div>
     <div class="user-pill"><span class="nm">${esc(g.nama)}</span><div class="avatar">${initials(g.nama)}</div></div><button class="icon-btn" title="Keluar" onclick="logout()">${ic('logout')}</button></div>
   <div class="p-wrap">
     <div class="hero"><div><h2>Halo, ${esc(g.nama)} 👋</h2><p>${dayName(todayStr())}, ${fmtDateLong(todayStr())} · ${bulan.length} sesi mengajar bulan ini</p></div>${stripe()}</div>
-    ${warn.length ? `<div class="note bg-red">${ic('alert')}<span><b>Paket murid habis:</b> ${warn.map(e => esc(siswaById(e.siswaId).nama) + ' (' + esc(e.tipe === 'Group' ? kelasById(e.kelasId).nama : e.kategori) + ')').join(', ')}. Absensi tetap bisa diinput — admin akan menagih perpanjangan.</span></div>` : ''}
+    ${warn.length ? `<div class="note bg-red">${ic('alert')}<span><b>Paket murid habis:</b> ${warn.map(e => esc(siswaById(e.siswaId).nama) + ' (' + esc(e.tipe === 'Group' ? kelasNamaOf(e) : e.kategori) + ')').join(', ')}. Absensi tetap bisa diinput — admin akan menagih perpanjangan.</span></div>` : ''}
     <div class="row"><div class="tabs">${[['input', 'Input Absensi'], ['riwayat', 'Riwayat Sesi Saya']].map(([k, l]) => `<button class="${t === k ? 'on' : ''}" onclick="S.tab.guru_p='${k}';renderGuru()">${l}</button>`).join('')}</div></div>
     ${t === 'input' ? '<div id="sfWrap"></div>' : `<div class="card"><div class="card-head"><h3>Riwayat sesi (4 bulan terakhir)</h3></div>
       ${mine.length ? mine.map(s => { const hs = D('Hadir').filter(h => h.sesiId === s.id); return `<div class="li"><div class="avatar" style="background:${s.tipe === 'Group' ? 'var(--teal-50)' : 'var(--coral-50)'}">${s.tipe === 'Group' ? 'G' : 'P'}</div><div class="meta"><b>${esc(s.tipe === 'Group' ? kelasById(s.kelasId).nama : hs.map(h => siswaById(h.siswaId).nama).join(', '))}</b><span class="small muted">${fmtDate(s.tanggal)} ${esc(s.jam || '')}${N(s.durasi) ? ' · ' + N(s.durasi) + ' mnt' : ''} · ${hs.filter(h => h.status === 'Hadir').length}/${hs.length} hadir</span></div><button class="btn ghost sm" onclick="sfLoad('${s.id}');S.tab.guru_p='input';renderGuru()">${ic('edit')}Edit</button></div>`; }).join('') : '<div class="empty">Belum ada sesi.</div>'}</div>`}
@@ -2183,8 +2291,8 @@ function renderOrtu() {
     ${habis.map(e => { const i = enrolInfo(e.id); return `<div class="note bg-${i.warn === 'hampir' && !i.kurang ? 'yellow' : 'red'}">${ic('alert')}<span><b>${esc(enrolLabel(e))}</b>: ${i.kurang ? `paket sudah habis & ada ${i.kurang} sesi yang belum tercover paket.` : i.sisa <= 0 ? 'paket sudah habis.' : `sisa ${i.sisa} sesi lagi.`} Silakan perpanjang paket ya 😊 <a href="${waLink(S.settings.noWa, `Halo admin ${S.settings.namaLembaga}, saya orang tua ${s.nama}. Ingin perpanjang paket ${enrolLabel(e)}.`)}" target="_blank"><b>Hubungi admin</b></a></span></div>`; }).join('')}
     ${unpaid.length ? `<div class="note bg-red">${ic('wallet')}<span>Ada <b>${unpaid.length} tagihan</b> belum lunas (${rp(sum(unpaid, x => x.total))}). Lihat tab Pembayaran.</span></div>` : ''}
     <div class="row"><div class="tabs">${[['ringkas', 'Sisa Sesi'], ['hadir', 'Riwayat Kehadiran'], ['bayar', 'Pembayaran']].map(([k, l]) => `<button class="${t === k ? 'on' : ''}" onclick="S.tab.ortu='${k}';renderOrtu()">${l}</button>`).join('')}</div></div>
-    ${t === 'ringkas' ? `${ens.length ? `<div class="grid g2">${ens.map(e => { const i = enrolInfo(e.id); const k = e.tipe === 'Group' ? kelasById(e.kelasId) : null; return `<div class="enrol-card ${e.status === 'Selesai' ? '' : i.warn}"><div class="row" style="align-items:flex-start"><div style="flex:1;min-width:0"><span class="badge ${e.tipe === 'Group' ? 'b-teal' : 'b-coral'}">${e.tipe === 'Group' ? 'Group Class' : esc(e.kategori)}</span> ${e.status === 'Selesai' ? stBadge('Selesai') : ''}<h4 style="font-size:17px;margin-top:6px">${esc(k ? k.nama : enrolLabel(e))}</h4><div class="xs muted">Guru: ${esc(guruNama(k ? k.guruId : e.guruId))}${e.jadwal ? ' · ' + esc(e.jadwal) : k && k.hari ? ' · ' + esc(k.hari + ' ' + (k.jam || '')) : ''}</div></div><div style="text-align:right"><div class="sisa-big" style="color:${i.sisa <= 0 ? 'var(--red)' : i.warn ? 'var(--yellow-d)' : 'var(--mint-d)'}">${i.sisa}</div><div class="xs muted">sisa sesi</div></div></div>${packageBar(i)}<div class="xs muted">${i.credits} sesi dibeli · ${i.used} terpakai · ${i.izin} izin tidak terpotong${i.moved ? ' · ' + i.moved + ' dipindah' : ''}</div></div>`; }).join('')}</div>${barLegend()}` : '<div class="card"><div class="empty">Belum terdaftar di kelas.</div></div>'}` : ''}
-    ${t === 'hadir' ? `<div class="card"><div class="card-head"><h3>Riwayat kehadiran & pemakaian sesi</h3></div>${evs.length ? evs.map(v => { const x = sesiM[v.sesiId] || {}; const e = enrolById(v.enrolId); return `<div class="li" style="align-items:flex-start"><div style="text-align:center;min-width:46px"><b style="font-family:var(--font-h);font-size:20px;line-height:1">${+v.tgl.slice(8)}</b><div class="xs muted">${BULAN[+v.tgl.slice(5, 7) - 1].slice(0, 3)} ${v.tgl.slice(2, 4)}</div></div><div class="meta"><b>${esc(e ? (e.tipe === 'Group' ? kelasById(e.kelasId).nama : enrolLabel(e)) : '-')}</b><span class="small muted">${dayName(v.tgl)} ${esc(v.jam || '')} · ${esc(guruNama(v.guruId))}</span>${x.materi ? `<div class="small" style="margin-top:4px">📚 ${esc(x.materi)}</div>` : ''}<div class="xs muted" style="margin-top:2px">${modeTxt(v)}</div></div>${hadirBadge(v.status)}</div>`; }).join('') : '<div class="empty">Belum ada sesi.</div>'}</div>` : ''}
+    ${t === 'ringkas' ? `${ens.length ? `<div class="grid g2">${ens.map(e => { const i = enrolInfo(e.id); const k = e.tipe === 'Group' ? kelasById(kelasIdsOf(e)[0]) : null; return `<div class="enrol-card ${e.status === 'Selesai' ? '' : i.warn}"><div class="row" style="align-items:flex-start"><div style="flex:1;min-width:0"><span class="badge ${e.tipe === 'Group' ? 'b-teal' : 'b-coral'}">${e.tipe === 'Group' ? 'Group Class' : esc(e.kategori)}</span> ${e.status === 'Selesai' ? stBadge('Selesai') : ''}<h4 style="font-size:17px;margin-top:6px">${esc(enrolLabel(e, false))}</h4><div class="xs muted">Guru: ${esc(guruNama(k ? k.guruId : e.guruId))}${e.jadwal ? ' · ' + esc(e.jadwal) : k && k.hari ? ' · ' + esc(k.hari + ' ' + (k.jam || '')) : ''}</div></div><div style="text-align:right"><div class="sisa-big" style="color:${i.sisa <= 0 ? 'var(--red)' : i.warn ? 'var(--yellow-d)' : 'var(--mint-d)'}">${i.sisa}</div><div class="xs muted">sisa sesi</div></div></div>${packageBar(i)}<div class="xs muted">${i.credits} sesi dibeli · ${i.used} terpakai · ${i.izin} izin tidak terpotong${i.moved ? ' · ' + i.moved + ' dipindah' : ''}</div></div>`; }).join('')}</div>${barLegend()}` : '<div class="card"><div class="empty">Belum terdaftar di kelas.</div></div>'}` : ''}
+    ${t === 'hadir' ? `<div class="card"><div class="card-head"><h3>Riwayat kehadiran & pemakaian sesi</h3></div>${evs.length ? evs.map(v => { const x = sesiM[v.sesiId] || {}; const e = enrolById(v.enrolId); return `<div class="li" style="align-items:flex-start"><div style="text-align:center;min-width:46px"><b style="font-family:var(--font-h);font-size:20px;line-height:1">${+v.tgl.slice(8)}</b><div class="xs muted">${BULAN[+v.tgl.slice(5, 7) - 1].slice(0, 3)} ${v.tgl.slice(2, 4)}</div></div><div class="meta"><b>${esc(x.tipe === 'Group' && x.kelasId ? kelasById(x.kelasId).nama : e ? enrolLabel(e) : '-')}</b><span class="small muted">${dayName(v.tgl)} ${esc(v.jam || '')} · ${esc(guruNama(v.guruId))}</span>${x.materi ? `<div class="small" style="margin-top:4px">📚 ${esc(x.materi)}</div>` : ''}<div class="xs muted" style="margin-top:2px">${modeTxt(v)}</div></div>${hadirBadge(v.status)}</div>`; }).join('') : '<div class="empty">Belum ada sesi.</div>'}</div>${(m.RiwayatLama || []).length ? `<div class="card"><details><summary class="b" style="cursor:pointer">Riwayat sebelum 2026 (${m.RiwayatLama.length} catatan)</summary>${m.RiwayatLama.slice().sort((a, b) => (b.tanggal || '').localeCompare(a.tanggal || '')).map(r => `<div class="li"><div class="meta"><b class="small">${fmtDate(r.tanggal)} · ${esc(r.jenis)}</b><span class="xs muted">${esc(r.kelas)} — ${esc(r.keterangan)}</span></div></div>`).join('')}</details></div>` : ''}` : ''}
     ${t === 'bayar' ? `<div class="card"><div class="card-head"><h3>Pembayaran & invoice</h3></div>${pays.length ? pays.map(p => `<div class="li"><div class="meta"><b>${esc(p.nama || p.jenis)}</b><span class="small muted">${esc(p.noInvoice)} · ${fmtDate(p.tglBeli)}${N(p.sesi) ? ` · ${N(p.sesi)} sesi${N(p.bonus) ? ' + ' + N(p.bonus) + ' gratis' : ''}` : ''}</span></div><b class="nowrap">${rp(p.total)}</b>${payBadge(p)}<button class="icon-btn" title="Invoice" onclick="ortuInvoice('${p.id}')">${ic('file')}</button></div>`).join('') : '<div class="empty">Belum ada pembayaran.</div>'}</div>` : ''}
     <p class="xs muted" style="text-align:center">Pertanyaan? WA admin <a href="${waLink(S.settings.noWa, 'Halo admin ' + S.settings.namaLembaga)}" target="_blank">${esc(S.settings.noWa)}</a></p>
   </div>`;
